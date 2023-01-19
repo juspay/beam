@@ -774,6 +774,8 @@ instance IsSql92ExpressionSyntax PgExpressionSyntax where
 
   inE e es = PgExpressionSyntax $ pgParens (fromPgExpression e) <> emit " IN " <>
                                   pgParens (pgSepBy (emit ", ") (map fromPgExpression es))
+  inSelectE e sel = PgExpressionSyntax $ pgParens (fromPgExpression e) <> emit " IN " <>
+                                         pgParens (fromPgSelect sel)
 
 instance IsSql99FunctionExpressionSyntax PgExpressionSyntax where
   functionCallE name args =
@@ -921,8 +923,8 @@ instance IsSql99AggregationExpressionSyntax PgExpressionSyntax where
 
   -- According to the note at <https://www.postgresql.org/docs/9.2/static/functions-aggregate.html>
   -- the following functions are equivalent.
-  someE = pgUnAgg "BOOL_ANY"
-  anyE = pgUnAgg "BOOL_ANY"
+  someE = pgUnAgg "BOOL_OR"
+  anyE = pgUnAgg "BOOL_OR"
 
 instance IsSql92AggregationSetQuantifierSyntax PgAggregationSetQuantifierSyntax where
   setQuantifierDistinct = PgAggregationSetQuantifierSyntax $ emit "DISTINCT"

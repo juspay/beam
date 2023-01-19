@@ -1,5 +1,5 @@
 name:                beam-sqlite
-version:             0.5.1.1
+version:             0.5.2.0
 synopsis:            Beam driver for SQLite
 description:         Beam driver for the <https://sqlite.org/ SQLite> embedded database.
                      See <https://haskell-beam.github.io/beam/user-guide/backends/beam-sqlite/ here>
@@ -25,21 +25,21 @@ library
   other-modules:      Database.Beam.Sqlite.SqliteSpecific
   build-depends:      base          >=4.7  && <5,
 
-                      beam-core     >=0.9  && <0.10,
+                      beam-core     >=0.10 && <0.11,
                       beam-migrate  >=0.5  && <0.6,
 
                       sqlite-simple >=0.4  && <0.5,
-                      text          >=1.0  && <1.3,
+                      text          >=1.0  && <2.1,
                       bytestring    >=0.10 && <0.12,
                       hashable      >=1.2  && <1.5,
-                      time          >=1.6  && <1.12,
+                      time          >=1.6  && <1.13,
                       dlist         >=0.8  && <1.1,
                       mtl           >=2.1  && <2.3,
                       free          >=4.12 && <5.2,
                       scientific    >=0.3  && <0.4,
                       monad-control        >=1.0  && <1.1,
                       network-uri   >=2.6  && <2.7,
-                      aeson         >=0.11 && <1.6,
+                      aeson         >=0.11 && <2.2,
                       attoparsec    >=0.13 && <0.15,
                       transformers-base    >=0.4  && <0.5
   default-language:   Haskell2010

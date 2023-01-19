@@ -152,7 +152,7 @@ perhaps_ :: forall s r be db.
          -> Q be db s (Retag Nullable (WithRewrittenThread (QNested s) s r))
 perhaps_ (Q sub) =
   Q $ liftF (QArbitraryJoin
-              sub leftJoin
+              sub "" leftJoin
               (\_ -> Nothing)
               (\r -> retag (\(Columnar' (QExpr e) :: Columnar' (QExpr be s) a) ->
                                             Columnar' (QExpr e) :: Columnar' (Nullable (QExpr be s)) a) $
@@ -232,7 +232,7 @@ leftJoin_' :: forall s r be db.
            -> Q be db s (Retag Nullable (WithRewrittenThread (QNested s) s r))
 leftJoin_' (Q sub) on_ =
   Q $ liftF (QArbitraryJoin
-               sub leftJoin
+               sub "" leftJoin
                (\r -> let QExpr e = on_ (rewriteThread (Proxy @s) r) in Just e)
                (\r -> retag (\(Columnar' (QExpr e) :: Columnar' (QExpr be s) a) ->
                                 Columnar' (QExpr e) :: Columnar' (Nullable (QExpr be s)) a) $
@@ -854,7 +854,7 @@ instance ( BeamSqlBackend be, Beamable t)
     isNothing_ t = allE (allBeamValues (\(Columnar' e) -> isNothing_ e) t)
     maybe_ (QExpr onNothing) onJust tbl =
       let QExpr onJust' = onJust (changeBeamRep (\(Columnar' (QExpr e)) -> Columnar' (QExpr e)) tbl)
-          QExpr cond = isJust_ tbl
+          QExpr cond = isJust_ @be tbl
       in QExpr (\tblPfx -> caseE [(cond tblPfx, onJust' tblPfx)] (onNothing tblPfx))
 
 infixl 3 <|>.
