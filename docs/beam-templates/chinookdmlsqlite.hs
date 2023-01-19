@@ -1,6 +1,6 @@
 {-# LANGUAGE MultiParamTypeClasses #-}
 
--- ! BUILD_COMMAND: stack runhaskell --package sqlite-simple --package beam-sqlite --package beam-core -- -fglasgow-exts -XTypeFamilies -XOverloadedStrings -XPartialTypeSignatures -XTypeApplications -fno-warn-partial-type-signatures
+-- ! BUILD_COMMAND: runhaskell --ghc-arg=-fglasgow-exts -XTypeFamilies -XOverloadedStrings -XPartialTypeSignatures -XTypeApplications -fno-warn-partial-type-signatures
 -- ! BUILD_DIR: beam-sqlite/examples/
 module Main where
 
@@ -15,6 +15,7 @@ import Control.Monad
 import Control.Exception
 
 import Data.IORef
+import Data.Int
 
 import Chinook.Schema
 

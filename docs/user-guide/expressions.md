@@ -31,10 +31,10 @@ general for the compiler to meaningfully infer types.
   `SqlValable`. This requires that there is an implementation of
   `HasSqlValueSyntax (Sql92ExpressionValueSyntax syntax) x` for the type `x` in
   the appropriate `syntax` for the `QGenExpr`. For example, to construct a value
-  of type `Vector Int` in the `beam-postgres` backend.
+  of type `Vector Int32` in the `beam-postgres` backend.
 
 ```haskell
-val_ (V.fromList [1, 2, 3 :: Int])
+val_ (V.fromList [1, 2, 3 :: Int32])
 ```
 
 * **Explicit tables** can be brought to the SQL value level by using `val_` as
@@ -225,6 +225,23 @@ digit of the quantity is 2:
 !example chinook
 filter_ (\ln -> cast_ (invoiceLineQuantity ln) (varchar Nothing) `like_` "2%") $
   all_ (invoiceLine chinookDb)
+```
+
+## Subqueries
+
+When a query is used in place of an expression it's called a *subquery*. A query has the type `Q` in beam, while a beam expression has the type `QGenExpr`. Therefore, when using subqueries in beam, a function is needed to convert a `Q` (query) into a `QGenExpr` (expression). This function is called `subquery_`. Using `subquery_`, a query can be used where an expression is expected.
+
+For example, suppose we wish to offer a discount on all "short" tracks, where a track is considered short if its duration is less than the average track duration for all tracks. This is achieved using an update in which the predicate contains a subquery that calculates the average track duration.
+
+!beam-query
+```haskell
+!example chinookdml
+runUpdate $ update (track chinookDb)
+  (\track' -> trackUnitPrice track' <-. current_ (trackUnitPrice track') / 2)
+  (\track' ->
+    let avgTrackDuration = aggregate_ (avg_ . trackMilliseconds) (all_ $ track chinookDb)
+    in just_ (trackMilliseconds track') <. subquery_ avgTrackDuration
+  )
 ```
 
 ## SQL Functions and operators

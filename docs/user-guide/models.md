@@ -110,7 +110,7 @@ table take on the corresponding `Maybe` type.
     concept of a nested optional type. Beam treats a `Nothing` at any 'layer' of
     the `Maybe` stack as a corresponding SQL `NULL`. When marshalling data back,
     a SQL `NULL` is read in as a top-level `Nothing`.
-    
+
     The reasons for this misfeature is basically code simplicity. Fixing this is
     a top priority of future versions of beam.
 
@@ -123,7 +123,7 @@ their meaning.
 
 ### Converting between tags
 
-Suppose you have a `Beamable` type paramaterized over a tag `f` and needed one
+Suppose you have a `Beamable` type parameterized over a tag `f` and needed one
 parameterized over a tag `g`. Given a function `conv :: forall a. Columnar f a
 -> Columnar g a`, you can use `changeBeamRep` to convert between the tables.
 
@@ -136,7 +136,7 @@ There is one caveat however -- since `Columnar` is a type family, the type of
 newtype Columnar' f a = Columnar' (Columnar f a)
 ```
 
-Notice that, unlinke `Columnar` (a non-injective type family), `Columnar'` is a
+Notice that, unlike `Columnar` (a non-injective type family), `Columnar'` is a
 full type. The type of `conv' :: forall a. Columnar' f a -> Columnar' g a` is
 now unambiguous. You can easily use `conv` to implement `conv'`:
 
@@ -166,7 +166,7 @@ data PersonT f
     { personEmail     :: Columnar f Text
     , personFirstName :: Columnar f Text
     , personLastName  :: Columnar f Text
-    , personAge       :: Columnar f Int
+    , personAge       :: Columnar f Int32
     } deriving (Generic, Beamable)
 ```
 
@@ -236,7 +236,7 @@ representing a post by a user.
 ```haskell
 data PostT f
     = Post
-    { postId       :: Columnar f (SqlSerial Int)
+    { postId       :: Columnar f (SqlSerial Int32)
     , postPostedAt :: Columnar f LocalTime
     , postContent  :: Columnar f Text
     , postPoster   :: PrimaryKey PersonT f
@@ -244,7 +244,7 @@ data PostT f
 
 instance Table PostT where
   data PrimaryKey PostT f
-      = PostId (Columnar f (SqlSerial Int)) deriving (Generic, Beamable)
+      = PostId (Columnar f (SqlSerial Int32)) deriving (Generic, Beamable)
   primaryKey = PostId . postId
 
 type Post = PostT Identity
@@ -265,7 +265,7 @@ For example, to make the poster optional above.
 ```haskell
 data PostT f
     = Post
-    { postId       :: Columnar f (SqlSerial Int)
+    { postId       :: Columnar f (SqlSerial Int32)
     , postPostedAt :: Columnar f LocalTime
     , postContent  :: Columnar f Text
     , postPoster   :: PrimaryKey PersonT (Nullable f)
@@ -295,7 +295,7 @@ Sometimes, we want to declare multiple models with fields in common. Beam allows
 you to simple embed such fields in common types and embed those directly into
 models. For example, in
 the
-[Chinook example schema](https://github.com/tathougies/beam/blob/master/beam-sqlite/examples/Chinook/Schema.hs),
+[Chinook example schema](https://github.com/haskell-beam/beam/blob/master/beam-sqlite/examples/Chinook/Schema.hs),
 we define the following structure for addresses.
 
 ```haskell

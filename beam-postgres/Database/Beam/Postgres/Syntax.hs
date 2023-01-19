@@ -11,6 +11,7 @@
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE CPP #-}
+{-# LANGUAGE UndecidableInstances #-}
 
 -- | Data types for Postgres syntax. Access is given mainly for extension
 -- modules. The types and definitions here are likely to change.
@@ -86,9 +87,9 @@ module Database.Beam.Postgres.Syntax
     , PostgresInaccessible ) where
 
 import           Database.Beam hiding (insert)
+import           Database.Beam.Backend.Internal.Compat
 import           Database.Beam.Backend.SQL
 import           Database.Beam.Migrate
-import           Database.Beam.Migrate.Checks (HasDataTypeCreatedCheck(..))
 import           Database.Beam.Migrate.SQL.Builder hiding (fromSqlConstraintAttributes)
 import           Database.Beam.Migrate.Serialization
 
@@ -119,9 +120,10 @@ import qualified Data.Text as T
 import qualified Data.Text.Encoding as TE
 import qualified Data.Text.Lazy as TL
 import           Data.Time (LocalTime, UTCTime, TimeOfDay, NominalDiffTime, Day)
-import           Data.UUID.Types (UUID)
+import           Data.UUID.Types (UUID, toASCIIBytes)
 import           Data.Word
 import qualified Data.Vector as V
+import           GHC.TypeLits
 
 import qualified Database.PostgreSQL.Simple.ToField as Pg
 import qualified Database.PostgreSQL.Simple.TypeInfo.Static as Pg
@@ -541,7 +543,7 @@ instance IsSql92DataTypeSyntax PgDataTypeSyntax where
                                       (emit "NUMERIC" <> pgOptNumericPrec prec)
                                       (numericType prec)
   decimalType prec = PgDataTypeSyntax (PgDataTypeDescrOid (Pg.typoid Pg.numeric) (mkNumericPrec prec))
-                                      (emit "DOUBLE" <> pgOptNumericPrec prec)
+                                      (emit "DECIMAL" <> pgOptNumericPrec prec)
                                       (decimalType prec)
 
   intType = PgDataTypeSyntax (PgDataTypeDescrOid (Pg.typoid Pg.int4) Nothing) (emit "INT") intType
@@ -1177,13 +1179,11 @@ instance DatabasePredicate PgHasEnum where
 DEFAULT_SQL_SYNTAX(Bool)
 DEFAULT_SQL_SYNTAX(Double)
 DEFAULT_SQL_SYNTAX(Float)
-DEFAULT_SQL_SYNTAX(Int)
 DEFAULT_SQL_SYNTAX(Int8)
 DEFAULT_SQL_SYNTAX(Int16)
 DEFAULT_SQL_SYNTAX(Int32)
 DEFAULT_SQL_SYNTAX(Int64)
 DEFAULT_SQL_SYNTAX(Integer)
-DEFAULT_SQL_SYNTAX(Word)
 DEFAULT_SQL_SYNTAX(Word8)
 DEFAULT_SQL_SYNTAX(Word16)
 DEFAULT_SQL_SYNTAX(Word32)
@@ -1197,7 +1197,6 @@ DEFAULT_SQL_SYNTAX(UTCTime)
 DEFAULT_SQL_SYNTAX(TimeOfDay)
 DEFAULT_SQL_SYNTAX(NominalDiffTime)
 DEFAULT_SQL_SYNTAX(Day)
-DEFAULT_SQL_SYNTAX(UUID)
 DEFAULT_SQL_SYNTAX([Char])
 DEFAULT_SQL_SYNTAX(Pg.HStoreMap)
 DEFAULT_SQL_SYNTAX(Pg.HStoreList)
@@ -1225,7 +1224,19 @@ instance HasSqlValueSyntax PgValueSyntax B.ByteString where
 instance HasSqlValueSyntax PgValueSyntax BL.ByteString where
   sqlValueSyntax = defaultPgValueSyntax . Pg.Binary
 
+-- This should be removed in favor of the default syntax if/when
+-- https://github.com/lpsmith/postgresql-simple/issues/277 is fixed upstream.
+instance HasSqlValueSyntax PgValueSyntax UUID where
+  sqlValueSyntax v = PgValueSyntax $
+    emit "'" <> emit (toASCIIBytes v) <> emit "'::uuid"
+
 instance Pg.ToField a => HasSqlValueSyntax PgValueSyntax (V.Vector a) where
+  sqlValueSyntax = defaultPgValueSyntax
+
+instance TypeError (PreferExplicitSize Int Int32) => HasSqlValueSyntax PgValueSyntax Int where
+  sqlValueSyntax = defaultPgValueSyntax
+
+instance TypeError (PreferExplicitSize Word Word32) => HasSqlValueSyntax PgValueSyntax Word where
   sqlValueSyntax = defaultPgValueSyntax
 
 pgQuotedIdentifier :: T.Text -> PgSyntax

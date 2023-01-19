@@ -3,6 +3,7 @@
 {-# LANGUAGE UndecidableInstances #-}
 {-# LANGUAGE FunctionalDependencies #-}
 {-# LANGUAGE ConstraintKinds #-}
+{-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE PolyKinds #-}
 
 module Database.Beam.Backend.SQL.Row
@@ -24,16 +25,13 @@ import           Control.Applicative
 import           Control.Exception (Exception)
 import           Control.Monad.Free.Church
 import           Control.Monad.Identity
+import           Data.Kind (Type)
 import           Data.Tagged
 import           Data.Typeable
 import           Data.Vector.Sized (Vector)
 import qualified Data.Vector.Sized as Vector
 
 import qualified Control.Monad.Fail as Fail
-
-#if !MIN_VERSION_base(4, 7, 0)
-import           Data.Proxy
-#endif
 
 import           GHC.Generics
 import           GHC.TypeLits
@@ -63,7 +61,11 @@ data FromBackendRowF be f where
   ParseOneField :: (BackendFromField be a, Typeable a) => (a -> f) -> FromBackendRowF be f
   Alt :: FromBackendRowM be a -> FromBackendRowM be a -> (a -> f) -> FromBackendRowF be f
   FailParseWith :: BeamRowReadError -> FromBackendRowF be f
-deriving instance Functor (FromBackendRowF be)
+instance Functor (FromBackendRowF be) where
+  fmap f = \case
+    ParseOneField p -> ParseOneField $ f . p
+    Alt a b p -> Alt a b $ f . p
+    FailParseWith e -> FailParseWith e
 newtype FromBackendRowM be a = FromBackendRowM (F (FromBackendRowF be) a)
   deriving (Functor, Applicative)
 
@@ -72,10 +74,6 @@ instance Monad (FromBackendRowM be) where
   FromBackendRowM a >>= b =
     FromBackendRowM $
     a >>= (\x -> let FromBackendRowM b' = b x in b')
-
-#if !MIN_VERSION_base(4,13,0)
-  fail = Fail.fail
-#endif
 
 instance Fail.MonadFail (FromBackendRowM be) where
   fail = FromBackendRowM . liftF . FailParseWith .
@@ -106,7 +104,7 @@ class BeamBackend be => FromBackendRow be a where
   valuesNeeded :: Proxy be -> Proxy a -> Int
   valuesNeeded _ _ = 1
 
-class GFromBackendRow be (exposed :: * -> *) rep where
+class GFromBackendRow be (exposed :: Type -> Type) rep where
   gFromBackendRow :: Proxy exposed -> FromBackendRowM be (rep ())
   gValuesNeeded :: Proxy be -> Proxy exposed -> Proxy rep -> Int
 instance GFromBackendRow be e p => GFromBackendRow be (M1 t f e) (M1 t f p) where
@@ -202,7 +200,9 @@ instance (FromBackendRow be x, FromBackendRow be SqlNull) => FromBackendRow be (
                       pure ()))
   valuesNeeded be _ = valuesNeeded be (Proxy @x)
 
+#if !MIN_VERSION_base(4, 16, 0)
 deriving instance Generic (a, b, c, d, e, f, g, h)
+#endif
 
 instance (BeamBackend be, FromBackendRow be t) => FromBackendRow be (Tagged tag t) where
   fromBackendRow = Tagged <$> fromBackendRow

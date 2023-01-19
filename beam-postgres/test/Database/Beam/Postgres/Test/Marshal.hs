@@ -13,7 +13,6 @@ import           Database.Beam.Postgres.Test
 import           Data.ByteString (ByteString)
 import           Data.Functor.Classes
 import           Data.Int
-import           Data.Proxy (Proxy(..))
 import qualified Data.Text as T
 import           Data.Typeable
 import           Data.UUID (UUID, fromWords)
@@ -104,13 +103,13 @@ tests postgresConn =
 
 data MarshalTable a f
     = MarshalTable
-    { _marshalTableId    :: C f (SqlSerial Int)
+    { _marshalTableId    :: C f (SqlSerial Int32)
     , _marshalTableEntry :: C f a
     } deriving (Generic)
 instance Beamable (MarshalTable a)
 
 instance Typeable a => Table (MarshalTable a) where
-    data PrimaryKey (MarshalTable a) f = MarshalTableKey (C f (SqlSerial Int))
+    data PrimaryKey (MarshalTable a) f = MarshalTableKey (C f (SqlSerial Int32))
       deriving (Generic, Beamable)
     primaryKey = MarshalTableKey . _marshalTableId
 

@@ -6,7 +6,6 @@ import subprocess
 
 import sqlparse
 
-import md5
 import hashlib
 
 import os
@@ -15,7 +14,7 @@ import os.path
 import yaml
 import json
 
-import urllib
+import urllib.request
 import zipfile
 
 import sys
@@ -36,12 +35,12 @@ def fetch_backend_src(backend_name, cache_dir, base_dir, src):
         backend_stack_yaml = os.path.join(cache_dir, 'backends', backend_name + '-' + src['revision'], 'stack.yaml')
         if not os.path.exists(backend_dir):
             github_url = "https://github.com/%s/archive/%s.zip" % (src['github'], src.get('revision', 'master'))
-            print "Downloading beam backend", backend_name, "from", github_url
+            print("Downloading beam backend", backend_name, "from", github_url)
 
             local_file = os.path.join(cache_dir, backend_name + "_github.zip")
-            urllib.urlretrieve(github_url, local_file)
+            urllib.request.urlretrieve(github_url, local_file)
 
-            print "Verifying archive..."
+            print("Verifying archive...")
 
             h = hashlib.sha256()
             with open(local_file, 'rb') as f:
@@ -65,28 +64,30 @@ def fetch_backend_src(backend_name, cache_dir, base_dir, src):
 
         return (backend_dir, { 'STACK_YAML': backend_stack_yaml })
     else:
-        print "Invalid source spec", src
+        print("Invalid source spec", src)
         sys.exit(1)
 
 def setup_backend(cache_dir, base_dir, backend):
     src = backend['src']
     (src_dir, stack_env) = fetch_backend_src(backend['backend-name'], cache_dir, base_dir, src)
+    if 'STACK_IN_NIX_SHELL' in stack_env:
+        del stack_env['STACK_IN_NIX_SHELL']
 
     backend_script = os.path.join(src_dir, 'beam-docs.sh')
     backend_cmd = 'sh %s' % backend_script
 
     opts = backend.get('backend-options', '')
 
-    opts_hash = md5.md5(opts).hexdigest()
+    opts_hash = hashlib.md5(opts.encode('utf-8')).hexdigest()
     status_file = backend['backend-name'] + '-' + opts_hash
     status_file = os.path.join(cache_dir, status_file)
 
     if not os.path.exists(status_file):
         # Set up the database
-        print "bash environment is", \
-            ['/usr/bin/env', 'bash', '-c', backend_cmd + ' ' + opts], \
-             os.path.join(base_dir, 'docs/beam-docs-library.sh')
-        setup_cmd = subprocess.Popen(['/usr/bin/env', 'bash', '-c',
+        print("bash environment is",
+              ['env', 'bash', '-c', backend_cmd + ' ' + opts],
+              os.path.join(base_dir, 'docs/beam-docs-library.sh'))
+        setup_cmd = subprocess.Popen(['env', 'bash', '-c',
                                       backend_cmd + ' ' + opts],
                                      cwd=os.path.abspath(cache_dir), close_fds=True,
                                      stdout=subprocess.PIPE,
@@ -94,17 +95,17 @@ def setup_backend(cache_dir, base_dir, backend):
         (out, _) = setup_cmd.communicate()
         retcode = setup_cmd.wait()
         if retcode == 0:
-            print 'Successfully setup backend %s' % backend['backend-name']
-            out = unicode(out, 'utf-8')
+            print('Successfully setup backend {}'.format(backend['backend-name']))
+            out = out.decode('utf-8')
             with open(status_file, 'wt') as f:
                 f.write(out)
             return (out, stack_env)
         else:
-            print out
+            print(out)
             sys.exit(1)
     else:
         with open(status_file, 'rt') as f:
-            return (f.read().decode('utf-8'), stack_env)
+            return (f.read(), stack_env)
 
 def backend_match_reqs(backend, reqs):
     backend_features = backend['supports']
@@ -147,32 +148,32 @@ def read_template(template_path, subst_vars):
     return template_data, options
 
 def hash_template(extra_data, template_path, extra_deps):
-    lines_hash = md5.md5(extra_data)
+    lines_hash = hashlib.md5(extra_data)
     with open(template_path) as f:
         for line in f:
-            lines_hash.update(line)
+            lines_hash.update(line.encode("utf-8"))
 
     for extra_dep in extra_deps:
         extra_dep = os.path.join(os.path.dirname(template_path), extra_dep)
-        lines_hash.update("EXTRA_DEP: %s" % extra_dep)
+        lines_hash.update("EXTRA_DEP: {}".format(extra_dep).encode('utf-8'))
         with open(extra_dep) as f:
             for line in f:
-                lines_hash.update(line)
+                lines_hash.update(line.encode('utf-8'))
 
     return lines_hash.hexdigest()
 
 def find_cached_file(cache_dir, lines_hash):
     if os.path.exists(os.path.join(cache_dir, lines_hash)):
         with open(os.path.join(cache_dir, lines_hash)) as cached:
-            return [x.rstrip().decode("utf-8") for x in cached]
+            return [x.rstrip() for x in cached]
     else:
         return None
 
 def save_cached_file(cache_dir, lines_hash, out):
     with open(os.path.join(cache_dir, lines_hash), 'wt') as f:
-        f.write(out.encode('utf-8'))
+        f.write(out)
 
-def run_backend_example(backend, template, cache_dir, base_dir, example_lines):
+def run_backend_example(backend, template, cache_dir, base_dir, full_example_lines):
     backend_haskell_names = backend['haskell-names']
     module = backend['backend-module']
     mnemonic = backend_haskell_names['mnemonic']
@@ -182,8 +183,18 @@ def run_backend_example(backend, template, cache_dir, base_dir, example_lines):
     backend_monad = '%s.%s' % (mnemonic, backend_haskell_names['monad'])
     extra_imports = backend.get('extra-imports', [])
 
+    example_lines = []
+
+    for line in full_example_lines:
+        if line.startswith('--! import'):
+            extra_imports.append(line[len('--! import'):])
+        else:
+            example_lines.append(line)
+
     # Attempt to setup backend
     (open_db_data, stack_env) = setup_backend(cache_dir, base_dir, backend)
+    if 'STACK_IN_NIX_SHELL' in stack_env:
+        del stack_env['STACK_IN_NIX_SHELL']
 
     template_data, options = read_template(template,
                                            { 'PLACEHOLDER': example_lines,
@@ -197,17 +208,16 @@ def run_backend_example(backend, template, cache_dir, base_dir, example_lines):
                                            })
 
     packages = [ "beam-core", backend_haskell_names['package'] ] + backend.get('extra-packages', [])
-    packages = [ "--package %s" % pkgname for pkgname in packages ]
+    packages = [ "-package %s" % pkgname for pkgname in packages ]
     decl_options = options.get('BUILD_OPTIONS', '').replace("$$BEAM_SOURCE$$", base_dir)
-    build_options = " ".join(packages) + \
-                    " -- -XCPP -DBEAM_BACKEND=%s -DBEAM_BACKEND_MONAD=%s -DBEAM_WITH_DATABASE_DEBUG=%s " % (backend_type, backend_monad, with_database_debug) + \
+    build_options = " -XCPP -DBEAM_BACKEND=%s -DBEAM_BACKEND_MONAD=%s -DBEAM_WITH_DATABASE_DEBUG=%s " % (backend_type, backend_monad, with_database_debug) + \
                     decl_options
     extra_deps = options.get('EXTRA_DEPS', '').split()
     output_format = options.get('OUTPUT_FORMAT', 'sql')
 
-    lines_hash = hash_template("$$TEMPLATEPATH$$" + template +
+    lines_hash = hash_template(b"$$TEMPLATEPATH$$" + template.encode('ascii') +
                                u"".join(example_lines).encode('ascii', 'xmlcharrefreplace') +
-                               json.dumps(backend),
+                               json.dumps(backend).encode('utf-8'),
                                template, extra_deps)
 
     cached_data = find_cached_file(cache_dir, lines_hash)
@@ -216,20 +226,21 @@ def run_backend_example(backend, template, cache_dir, base_dir, example_lines):
 
     source_file = os.path.join(os.path.abspath(cache_dir), lines_hash + ".hs")
     with open(source_file, 'wt') as source_hdl:
-        source_hdl.write(u"\n".join(template_data).encode('utf-8'))
+        source_hdl.write(u"\n".join(template_data))
 
-    print "Running backend example", lines_hash
-    build_command = 'stack runhaskell ' + build_options + ' ' + source_file
+    build_command = 'runhaskell ' + build_options + ' ' + source_file
+    print("Running backend example", lines_hash, ":", build_command)
+    print("With environment", stack_env)
     is_ci = check_ci()
     proc = subprocess.Popen(build_command, shell=True, cwd=os.path.abspath(cache_dir), close_fds=True,
                             stdout=subprocess.PIPE, stderr=subprocess.PIPE if not is_ci else None,
                             env=dict(os.environ, **stack_env))
 
     (out, err) = proc.communicate()
-    out = unicode(out, 'utf-8')
+    out = out.decode('utf-8')
 
     retcode = proc.wait()
-    print "Ran backend example", lines_hash
+    print("Ran backend example", lines_hash, file=sys.stderr)
     if retcode == 0:
         # Success!!
         os.remove(source_file)
@@ -241,13 +252,15 @@ def run_backend_example(backend, template, cache_dir, base_dir, example_lines):
         return out.split("\n")
     else:
         if is_ci:
-            print "Error in source file", source_file
-            print "Example is\n", "\n".join(example_lines)
+            print("Error in source file", source_file)
+            print("Example is\n", "\n".join(example_lines))
             sys.exit(1)
         else:
-            print "Error in source file", source_file
-            print err
-            return unicode(err, 'utf-8').encode('ascii', 'ignore').split()
+            print("Error in source file", source_file)
+            sys.stderr.flush()
+            sys.stderr.buffer.write(err)
+            err = err.decode("utf-8")
+            return err.split()
 
 def run_example(template_path, cache_dir, example_lines):
     template_data, options = read_template(template_path, { 'PLACEHOLDER': example_lines })
@@ -257,7 +270,7 @@ def run_example(template_path, cache_dir, example_lines):
     extra_deps = options.get('EXTRA_DEPS', "").split()
     out_format = options.get('FORMAT', 'sql')
 
-    lines_hash = hash_template("$$TEMPLATEPATH$$" + template_path +
+    lines_hash = hash_template(b"$$TEMPLATEPATH$$" + template_path.encode('utf-8') +
                                u"".join(example_lines).encode('ascii', 'xmlcharrefreplace'),
                                template_path, extra_deps)
     cached_data = find_cached_file(cache_dir, lines_hash)
@@ -267,18 +280,18 @@ def run_example(template_path, cache_dir, example_lines):
     if build_command is None:
         return ["No BUILD_COMMAND specified"] + example_lines
 
-    print "Running example", lines_hash
+    print("Running example", lines_hash)
     is_ci = check_ci()
     proc = subprocess.Popen(build_command, shell=True, cwd=os.path.abspath(build_dir), close_fds=True,
                             stdin=subprocess.PIPE, stdout=subprocess.PIPE,
                             stderr=subprocess.PIPE if not is_ci else None)
 
     (out, err) = proc.communicate(u"\n".join(template_data).encode('utf-8'))
-    out = unicode(out, 'utf-8')
+    out = out.decode('utf-8')
 
     retcode = proc.wait()
 
-    print "Ran example", lines_hash
+    print("Ran example", lines_hash, file=sys.stderr)
     if retcode == 0:
         if out_format == 'sql':
             out = sqlparse.format(out, reindent=True)
@@ -286,12 +299,15 @@ def run_example(template_path, cache_dir, example_lines):
         return out.split("\n")
     else:
         if is_ci:
-            print "Error processing file", lines_hash
-            print "Example is\n", "\n".join(example_lines)
+            print("Error processing file", lines_hash)
+            print("Example is\n", "\n".join(example_lines))
             sys.exit(1)
         else:
-            print err
-            return unicode(err, 'utf-8').encode('ascii', 'ignore').split()
+            sys.stdout.flush()
+            sys.stderr.flush()
+            sys.stderr.buffer.write(err)
+            err = err.decode("utf-8")
+            return err.split()
 
 class BeamQueryBlockProcessor(Preprocessor):
     def __init__(self, *args, **kwargs):
@@ -383,6 +399,7 @@ class BeamQueryBlockProcessor(Preprocessor):
                     beam_templates = []
                 else:
                     output.append(line)
+
         return output
 
 
@@ -402,7 +419,7 @@ class BeamQueryExtension(Extension):
         backends = conf['backends']
         is_ci = check_ci()
         enabled_backends = self.getConfig('enabled_backends') if not is_ci else os.environ['BEAM_DOC_BACKEND'].split()
-        print "Enabled backends are", enabled_backends
+        print("Enabled backends are", enabled_backends)
         if len(enabled_backends) > 0:
             all_backends = backends.keys()
             for backend_name in all_backends:

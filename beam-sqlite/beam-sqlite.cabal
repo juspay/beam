@@ -1,5 +1,5 @@
 name:                beam-sqlite
-version:             0.5.0.0
+version:             0.5.1.1
 synopsis:            Beam driver for SQLite
 description:         Beam driver for the <https://sqlite.org/ SQLite> embedded database.
                      See <https://haskell-beam.github.io/beam/user-guide/backends/beam-sqlite/ here>
@@ -14,7 +14,7 @@ category:            Database
 build-type:          Simple
 extra-source-files:  README.md
 extra-doc-files:     ChangeLog.md
-bug-reports:          https://github.com/tathougies/beam/issues
+bug-reports:          https://github.com/haskell-beam/beam/issues
 cabal-version:       1.18
 
 library
@@ -30,20 +30,22 @@ library
 
                       sqlite-simple >=0.4  && <0.5,
                       text          >=1.0  && <1.3,
-                      bytestring    >=0.10 && <0.11,
-                      hashable      >=1.2  && <1.4,
-                      time          >=1.6  && <1.10,
-                      dlist         >=0.8  && <0.9,
+                      bytestring    >=0.10 && <0.12,
+                      hashable      >=1.2  && <1.5,
+                      time          >=1.6  && <1.12,
+                      dlist         >=0.8  && <1.1,
                       mtl           >=2.1  && <2.3,
                       free          >=4.12 && <5.2,
                       scientific    >=0.3  && <0.4,
+                      monad-control        >=1.0  && <1.1,
                       network-uri   >=2.6  && <2.7,
                       aeson         >=0.11 && <1.6,
-                      attoparsec    >=0.13 && <0.14
+                      attoparsec    >=0.13 && <0.15,
+                      transformers-base    >=0.4  && <0.5
   default-language:   Haskell2010
   default-extensions: ScopedTypeVariables, OverloadedStrings, MultiParamTypeClasses, RankNTypes, FlexibleInstances,
                       DeriveDataTypeable, DeriveGeneric, StandaloneDeriving, TypeFamilies, GADTs, OverloadedStrings,
-                      CPP, TypeApplications, FlexibleContexts, ConstraintKinds
+                      CPP, TypeApplications, FlexibleContexts, ConstraintKinds, DerivingStrategies
   ghc-options:        -Wall
   if flag(werror)
     ghc-options:       -Werror
@@ -55,6 +57,41 @@ library
     cpp-options:      -DUNIX
     build-depends:    unix          >=2.0 && <2.8
 
+test-suite beam-sqlite-tests
+  type: exitcode-stdio-1.0
+  hs-source-dirs: test
+  main-is: Main.hs
+  build-depends:
+    base,
+    beam-core,
+    beam-migrate,
+    beam-sqlite,
+    sqlite-simple,
+    tasty,
+    tasty-expected-failure,
+    tasty-hunit,
+    text,
+    time
+  other-modules:
+    Database.Beam.Sqlite.Test
+    Database.Beam.Sqlite.Test.Insert
+    Database.Beam.Sqlite.Test.Migrate
+    Database.Beam.Sqlite.Test.Select
+  default-language: Haskell2010
+  default-extensions:
+    DeriveAnyClass,
+    DeriveGeneric,
+    FlexibleContexts,
+    FlexibleInstances,
+    LambdaCase,
+    MultiParamTypeClasses,
+    OverloadedStrings,
+    RankNTypes,
+    ScopedTypeVariables,
+    StandaloneDeriving,
+    TypeApplications,
+    TypeFamilies
+
 flag werror
   description: Enable -Werror during development
   default:     False
@@ -62,5 +99,5 @@ flag werror
 
 source-repository head
   type: git
-  location: https://github.com/tathougies/beam.git
+  location: https://github.com/haskell-beam/beam.git
   subdir: beam-sqlite

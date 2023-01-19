@@ -1,3 +1,39 @@
+# 0.5.1.1
+
+## Added features
+
+ * GHC 9.2 and 9.0 support
+
+# 0.5.1.0
+
+## Added features
+
+ * Expose `IsNotNull` class
+
+## Bug fixes
+
+ * Order log entries when verifying migration status
+
+# 0.5.0.0
+
+## Interface changes
+
+ * Removed instances for machine-dependent ambiguous integer types `Int` and `Word`
+ * Require `MonadFail` for `BeamMigrationBackend`
+
+## Added features
+
+ * GHC 8.8 support
+ * `checkSchema`: Like `verifySchema`, but detects and returns unexpected
+   predicates found in the live database
+
+## Bug fixes
+
+ * Map `Int16` to `smallIntType` instead of `intType`
+ * Suppress creation of primary key constraints for tables with no primary keys
+
+## 0.4.0.0
+
 ## 0.3.2.0
 
 Added `haskellSchema` shortcut

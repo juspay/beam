@@ -38,6 +38,7 @@ module Database.Beam.Postgres.PgSpecific
   , withoutKeys
 
   , pgJsonArrayLength
+  , pgArrayToJson
   , pgJsonbUpdate, pgJsonbSet
   , pgJsonbPretty
 
@@ -105,12 +106,16 @@ module Database.Beam.Postgres.PgSpecific
   , lowerInc_, upperInc_, lowerInf_, upperInf_
   , rangeMerge_
 
+    -- * Postgres @EXTRACT@ fields
+  , century_, decade_, dow_, doy_, epoch_, isodow_, isoyear_
+  , microseconds_, milliseconds_, millennium_, quarter_, week_
+
     -- ** Postgres functions and aggregates
   , pgBoolOr, pgBoolAnd, pgStringAgg, pgStringAggOver
 
   , pgNubBy_
 
-  , now_, ilike_
+  , now_, ilike_, ilike_'
   )
 where
 
@@ -133,13 +138,15 @@ import           Data.ByteString.Builder
 import qualified Data.ByteString.Char8 as BC
 import qualified Data.ByteString.Lazy as BL
 import           Data.Foldable
+import           Data.Functor
 import           Data.Hashable
+import           Data.Int
 import qualified Data.List.NonEmpty as NE
 import           Data.Proxy
 import           Data.Scientific (Scientific, formatScientific, FPFormat(Fixed))
 import           Data.String
 import qualified Data.Text as T
-import           Data.Time (LocalTime)
+import           Data.Time (LocalTime, NominalDiffTime)
 import           Data.Type.Bool
 import qualified Data.Vector as V
 #if !MIN_VERSION_base(4, 11, 0)
@@ -161,11 +168,22 @@ now_ :: QExpr Postgres s LocalTime
 now_ = QExpr (\_ -> PgExpressionSyntax (emit "NOW()"))
 
 -- | Postgres @ILIKE@ operator. A case-insensitive version of 'like_'.
-ilike_ :: BeamSqlBackendIsString Postgres text
-       => QExpr Postgres s text
-       -> QExpr Postgres s text
-       -> QExpr Postgres s Bool
-ilike_ (QExpr a) (QExpr b) = QExpr (pgBinOp "ILIKE" <$> a <*> b)
+ilike_
+  :: BeamSqlBackendIsString Postgres text
+  => QExpr Postgres s text
+  -> QExpr Postgres s text
+  -> QExpr Postgres s Bool
+ilike_ = ilike_'
+
+-- | Postgres @ILIKE@ operator. A case-insensitive version of 'like_''.
+ilike_'
+  :: ( BeamSqlBackendIsString Postgres left
+     , BeamSqlBackendIsString Postgres right
+     )
+  => QExpr Postgres s left
+  -> QExpr Postgres s right
+  -> QExpr Postgres s Bool
+ilike_' (QExpr a) (QExpr b) = QExpr (pgBinOp "ILIKE" <$> a <*> b)
 
 -- ** TsVector type
 
@@ -439,7 +457,7 @@ arrayOf_ q =
 data PgBoundType
   = Inclusive
   | Exclusive
-  deriving (Show, Generic)
+  deriving (Eq, Show, Generic)
 instance Hashable PgBoundType
 
 lBound :: PgBoundType -> ByteString
@@ -452,7 +470,7 @@ uBound Exclusive = ")"
 
 -- | Represents a single bound on a Range. A bound always has a type, but may not have a value
 -- (the absense of a value represents unbounded).
-data PgRangeBound a = PgRangeBound PgBoundType (Maybe a) deriving (Show, Generic)
+data PgRangeBound a = PgRangeBound PgBoundType (Maybe a) deriving (Eq, Show, Generic)
 
 inclusive :: a -> PgRangeBound a
 inclusive = PgRangeBound Inclusive . Just
@@ -471,7 +489,7 @@ unbounded = PgRangeBound Exclusive Nothing
 data PgRange (n :: *) a
   = PgEmptyRange
   | PgRange (PgRangeBound a) (PgRangeBound a)
-  deriving (Show, Generic)
+  deriving (Eq, Show, Generic)
 
 instance Hashable a => Hashable (PgRangeBound a)
 
@@ -875,10 +893,10 @@ instance IsPgJSON PgJSONB where
 -- | Postgres @&#x40;>@ and @<&#x40;@ operators for JSON. Return true if the
 -- json object pointed to by the arrow is completely contained in the other. See
 -- the Postgres documentation for more in formation on what this means.
-(@>), (<@) :: IsPgJSON json
-           => QGenExpr ctxt Postgres s (json a)
-           -> QGenExpr ctxt Postgres s (json b)
-           -> QGenExpr ctxt Postgres s Bool
+(@>), (<@)
+  :: QGenExpr ctxt Postgres s (PgJSONB a)
+  -> QGenExpr ctxt Postgres s (PgJSONB b)
+  -> QGenExpr ctxt Postgres s Bool
 QExpr a @> QExpr b =
   QExpr (pgBinOp "@>" <$> a <*> b)
 QExpr a <@ QExpr b =
@@ -888,7 +906,7 @@ QExpr a <@ QExpr b =
 -- See '(->$)' for the corresponding operator for object access.
 (->#) :: IsPgJSON json
       => QGenExpr ctxt Postgres s (json a)
-      -> QGenExpr ctxt Postgres s Int
+      -> QGenExpr ctxt Postgres s Int32
       -> QGenExpr ctxt Postgres s (json b)
 QExpr a -># QExpr b =
   QExpr (pgBinOp "->" <$> a <*> b)
@@ -907,7 +925,7 @@ QExpr a ->$ QExpr b =
 -- corresponding operator on objects.
 (->>#) :: IsPgJSON json
        => QGenExpr ctxt Postgres s (json a)
-       -> QGenExpr ctxt Postgres s Int
+       -> QGenExpr ctxt Postgres s Int32
        -> QGenExpr ctxt Postgres s T.Text
 QExpr a ->># QExpr b =
   QExpr (pgBinOp "->>" <$> a <*> b)
@@ -944,19 +962,19 @@ QExpr a #>> QExpr b =
 
 -- | Postgres @?@ operator. Checks if the given string exists as top-level key
 -- of the json object.
-(?) :: IsPgJSON json
-    => QGenExpr ctxt Postgres s (json a)
-    -> QGenExpr ctxt Postgres s T.Text
-    -> QGenExpr ctxt Postgres s Bool
+(?)
+  :: QGenExpr ctxt Postgres s (PgJSONB a)
+  -> QGenExpr ctxt Postgres s T.Text
+  -> QGenExpr ctxt Postgres s Bool
 QExpr a ? QExpr b =
   QExpr (pgBinOp "?" <$> a <*> b)
 
 -- | Postgres @?|@ and @?&@ operators. Check if any or all of the given strings
 -- exist as top-level keys of the json object respectively.
-(?|), (?&) :: IsPgJSON json
-           => QGenExpr ctxt Postgres s (json a)
-           -> QGenExpr ctxt Postgres s (V.Vector T.Text)
-           -> QGenExpr ctxt Postgres s Bool
+(?|), (?&)
+  :: QGenExpr ctxt Postgres s (PgJSONB a)
+  -> QGenExpr ctxt Postgres s (V.Vector T.Text)
+  -> QGenExpr ctxt Postgres s Bool
 QExpr a ?| QExpr b =
   QExpr (pgBinOp "?|" <$> a <*> b)
 QExpr a ?& QExpr b =
@@ -965,38 +983,47 @@ QExpr a ?& QExpr b =
 -- | Postgres @-@ operator on json objects. Returns the supplied json object
 -- with the supplied key deleted. See 'withoutIdx' for the corresponding
 -- operator on arrays.
-withoutKey :: IsPgJSON json
-           => QGenExpr ctxt Postgres s (json a)
-           -> QGenExpr ctxt Postgres s T.Text
-           -> QGenExpr ctxt Postgres s (json b)
+withoutKey
+  :: QGenExpr ctxt Postgres s (PgJSONB a)
+  -> QGenExpr ctxt Postgres s T.Text
+  -> QGenExpr ctxt Postgres s (PgJSONB b)
 QExpr a `withoutKey` QExpr b =
   QExpr (pgBinOp "-" <$> a <*> b)
 
 -- | Postgres @-@ operator on json arrays. See 'withoutKey' for the
 -- corresponding operator on objects.
-withoutIdx :: IsPgJSON json
-           => QGenExpr ctxt Postgres s (json a)
-           -> QGenExpr ctxt Postgres s Int
-           -> QGenExpr ctxt Postgres s (json b)
+withoutIdx
+  :: QGenExpr ctxt Postgres s (PgJSONB a)
+  -> QGenExpr ctxt Postgres s Int32
+  -> QGenExpr ctxt Postgres s (PgJSONB b)
 QExpr a `withoutIdx` QExpr b =
   QExpr (pgBinOp "-" <$> a <*> b)
 
 -- | Postgres @#-@ operator. Removes all the keys specificied from the JSON
 -- object and returns the result.
-withoutKeys :: IsPgJSON json
-            => QGenExpr ctxt Postgres s (json a)
-            -> QGenExpr ctxt Postgres s (V.Vector T.Text)
-            -> QGenExpr ctxt Postgres s (json b)
+withoutKeys
+  :: QGenExpr ctxt Postgres s (PgJSONB a)
+  -> QGenExpr ctxt Postgres s (V.Vector T.Text)
+  -> QGenExpr ctxt Postgres s (PgJSONB b)
 QExpr a `withoutKeys` QExpr b =
   QExpr (pgBinOp "#-" <$> a <*> b)
 
 -- | Postgres @json_array_length@ function. The supplied json object should be
 -- an array, but this isn't checked at compile-time.
 pgJsonArrayLength :: IsPgJSON json => QGenExpr ctxt Postgres s (json a)
-                  -> QGenExpr ctxt Postgres s Int
+                  -> QGenExpr ctxt Postgres s Int32
 pgJsonArrayLength (QExpr a) =
   QExpr $ \tbl ->
   PgExpressionSyntax (emit "json_array_length(" <> fromPgExpression (a tbl) <> emit ")")
+
+-- | Postgres @array_to_json@ function.
+pgArrayToJson
+  :: QGenExpr ctxt Postgres s (V.Vector e)
+  -> QGenExpr ctxt Postgres s (PgJSON a)
+pgArrayToJson (QExpr a) = QExpr $ a <&> PgExpressionSyntax .
+  mappend (emit "array_to_json") .
+  pgParens .
+  fromPgExpression
 
 -- | The postgres @jsonb_set@ function. 'pgJsonUpdate' expects the value
 -- specified by the path in the second argument to exist. If it does not, the
@@ -1395,8 +1422,7 @@ pgUnnest :: forall tbl db s
           . Beamable tbl
          => QExpr Postgres s (PgSetOf tbl)
          -> Q Postgres db s (QExprTable Postgres s tbl)
-pgUnnest (QExpr q) =
-  pgUnnest' (\t -> pgParens (fromPgExpression (q t)))
+pgUnnest (QExpr q) = pgUnnest' $ fromPgExpression . q
 
 data PgUnnestArrayTbl a f = PgUnnestArrayTbl (C f a)
   deriving Generic
@@ -1409,14 +1435,14 @@ pgUnnestArray (QExpr q) =
   fmap (\(PgUnnestArrayTbl x) -> x) $
   pgUnnest' (\t -> emit "UNNEST" <> pgParens (fromPgExpression (q t)))
 
-data PgUnnestArrayWithOrdinalityTbl a f = PgUnnestArrayWithOrdinalityTbl (C f Int) (C f a)
+data PgUnnestArrayWithOrdinalityTbl a f = PgUnnestArrayWithOrdinalityTbl (C f Int64) (C f a)
   deriving Generic
 instance Beamable (PgUnnestArrayWithOrdinalityTbl a)
 
 -- | Introduce each element of the array as a row, along with the
 -- element's index
 pgUnnestArrayWithOrdinality :: QExpr Postgres s (V.Vector a)
-                            -> Q Postgres db s (QExpr Postgres s Int, QExpr Postgres s a)
+                            -> Q Postgres db s (QExpr Postgres s Int64, QExpr Postgres s a)
 pgUnnestArrayWithOrdinality (QExpr q) =
   fmap (\(PgUnnestArrayWithOrdinalityTbl i x) -> (i, x)) $
   pgUnnest' (\t -> emit "UNNEST" <> pgParens (fromPgExpression (q t)) <> emit " WITH ORDINALITY")
@@ -1452,6 +1478,44 @@ instance HasDefaultSqlDataType Postgres a
     => HasDefaultSqlDataType Postgres (V.Vector a) where
   defaultSqlDataType _ be embedded =
       pgUnboundedArrayType (defaultSqlDataType (Proxy :: Proxy a) be embedded)
+
+-- ** Extract
+
+century_ :: HasSqlDate tgt => ExtractField Postgres tgt Int32
+century_ = ExtractField (PgExtractFieldSyntax (emit "CENTURY"))
+
+decade_ :: HasSqlDate tgt => ExtractField Postgres tgt Int32
+decade_ = ExtractField (PgExtractFieldSyntax (emit "DECADE"))
+
+dow_ :: HasSqlDate tgt => ExtractField Postgres tgt Int32
+dow_ = ExtractField (PgExtractFieldSyntax (emit "DOW"))
+
+doy_ :: HasSqlDate tgt => ExtractField Postgres tgt Int32
+doy_ = ExtractField (PgExtractFieldSyntax (emit "DOY"))
+
+epoch_ :: HasSqlTime tgt => ExtractField Postgres tgt NominalDiffTime
+epoch_ = ExtractField (PgExtractFieldSyntax (emit "EPOCH"))
+
+isodow_ :: HasSqlDate tgt => ExtractField Postgres tgt Int32
+isodow_ = ExtractField (PgExtractFieldSyntax (emit "ISODOW"))
+
+isoyear_ :: HasSqlDate tgt => ExtractField Postgres tgt Int32
+isoyear_ = ExtractField (PgExtractFieldSyntax (emit "ISOYEAR"))
+
+microseconds_ :: HasSqlTime tgt => ExtractField Postgres tgt Int32
+microseconds_ = ExtractField (PgExtractFieldSyntax (emit "MICROSECONDS"))
+
+milliseconds_ :: HasSqlTime tgt => ExtractField Postgres tgt Int32
+milliseconds_ = ExtractField (PgExtractFieldSyntax (emit "MILLISECONDS"))
+
+millennium_ :: HasSqlDate tgt => ExtractField Postgres tgt Int32
+millennium_ = ExtractField (PgExtractFieldSyntax (emit "MILLENNIUM"))
+
+quarter_ :: HasSqlDate tgt => ExtractField Postgres tgt Int32
+quarter_ = ExtractField (PgExtractFieldSyntax (emit "QUARTER"))
+
+week_ :: HasSqlDate tgt => ExtractField Postgres tgt Int32
+week_ = ExtractField (PgExtractFieldSyntax (emit "WEEK"))
 
 -- $full-text-search
 --
@@ -1540,4 +1604,3 @@ instance HasDefaultSqlDataType Postgres a
 -- 'pgUnnestArrayWithOrdinality' function allows you to join against the
 -- elements of an array along with its index. This corresponds to the
 -- @UNNEST .. WITH ORDINALITY@ clause.
-
