@@ -92,6 +92,7 @@ import           GHC.Generics
 -- value list is ignored.
 data SqliteSyntax = SqliteSyntax ((SQLData -> Builder) -> Builder) (DL.DList SQLData)
 newtype SqliteData = SqliteData SQLData -- newtype for Hashable
+  deriving (Eq)
 
 instance Show SqliteSyntax where
   show (SqliteSyntax s d) =
@@ -118,6 +119,7 @@ instance Hashable SqliteSyntax where
   hashWithSalt salt (SqliteSyntax s d) =
       hashWithSalt salt ( toLazyByteString (withPlaceholders s)
                         , map SqliteData (DL.toList d) )
+
 instance Hashable SqliteData where
   hashWithSalt salt (SqliteData (SQLInteger i)) = hashWithSalt salt (0 :: Int, i)
   hashWithSalt salt (SqliteData (SQLFloat d))   = hashWithSalt salt (1 :: Int, d)
