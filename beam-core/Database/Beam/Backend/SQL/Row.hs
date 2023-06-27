@@ -4,6 +4,7 @@
 {-# LANGUAGE FunctionalDependencies #-}
 {-# LANGUAGE ConstraintKinds #-}
 {-# LANGUAGE PolyKinds #-}
+{-# LANGUAGE LambdaCase #-} -- for LambdaCase
 
 module Database.Beam.Backend.SQL.Row
   ( FromBackendRowF(..), FromBackendRowM(..)
@@ -63,7 +64,11 @@ data FromBackendRowF be f where
   ParseOneField :: (BackendFromField be a, Typeable a) => (a -> f) -> FromBackendRowF be f
   Alt :: FromBackendRowM be a -> FromBackendRowM be a -> (a -> f) -> FromBackendRowF be f
   FailParseWith :: BeamRowReadError -> FromBackendRowF be f
-deriving instance Functor (FromBackendRowF be)
+instance Functor (FromBackendRowF be) where
+  fmap f = \case
+    ParseOneField p -> ParseOneField $ f . p
+    Alt a b p -> Alt a b $ f . p
+    FailParseWith e -> FailParseWith e
 newtype FromBackendRowM be a = FromBackendRowM (F (FromBackendRowF be) a)
   deriving (Functor, Applicative)
 
@@ -202,7 +207,9 @@ instance (FromBackendRow be x, FromBackendRow be SqlNull) => FromBackendRow be (
                       pure ()))
   valuesNeeded be _ = valuesNeeded be (Proxy @x)
 
-deriving instance Generic (a, b, c, d, e, f, g, h)
+#if !MIN_VERSION_base(4,16,0)
+  deriving instance Generic (a, b, c, d, e, f, g, h)
+#endif
 
 instance (BeamBackend be, FromBackendRow be t) => FromBackendRow be (Tagged tag t) where
   fromBackendRow = Tagged <$> fromBackendRow
