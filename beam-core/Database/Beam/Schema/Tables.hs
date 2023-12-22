@@ -325,7 +325,7 @@ instance Beamable tbl => IsDatabaseEntity be (TableEntity tbl) where
   dbEntityName f tbl = fmap (\t' -> tbl { dbTableCurrentName = t' }) (f (dbTableCurrentName tbl))
   dbEntitySchema f tbl = fmap (\s' -> tbl { dbTableSchema = s'}) (f (dbTableSchema tbl))
   dbEntityAuto nm =
-    DatabaseTable Nothing nm (unCamelCaseSel nm) defTblFieldSettings
+    DatabaseTable Nothing nm nm defTblFieldSettings
 
 instance Beamable tbl => RenamableWithRule (FieldRenamer (DatabaseEntityDescriptor be (ViewEntity tbl))) where
   renamingFields renamer =
@@ -847,7 +847,7 @@ instance Selector f  =>
     GDefaultTableFieldSettings (S1 f (K1 Generic.R (TableField table field)) p) where
     gDefTblFieldSettings (_ :: Proxy (S1 f (K1 Generic.R (TableField table field)) p)) = M1 (K1 s)
         where s = TableField (pure rawSelName) name
-              name = unCamelCaseSel rawSelName
+              name = T.dropWhile (=='_') rawSelName
               rawSelName = T.pack (selName (undefined :: S1 f (K1 Generic.R (TableField table field)) ()))
 
 instance ( TypeError ('Text "All Beamable types must be record types, so appropriate names can be given to columns")) => GDefaultTableFieldSettings (K1 r f p) where
