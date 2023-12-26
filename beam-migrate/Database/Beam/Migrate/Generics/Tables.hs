@@ -138,15 +138,17 @@ instance (BeamMigrateSqlBackend be, HasDefaultSqlDataType be ty) =>
 -- TODO Not sure if individual databases will want to customize these types
 
 
-#if WORD_SIZE_IN_BITS == 32
+-- #if WORD_SIZE_IN_BITS == 32
+-- instance BeamMigrateSqlBackend be => HasDefaultSqlDataType be Int where
+--   defaultSqlDataType _ = defaultSqlDataType (Proxy @Int32)
+-- #elif WORD_SIZE_IN_BITS == 64
+-- instance ( BeamMigrateSqlBackend be, BeamSqlT071Backend be ) => HasDefaultSqlDataType be Int where
+--   defaultSqlDataType _ = defaultSqlDataType (Proxy @Int64)
+-- #else
+-- #error "Unsupported word size; check the value of WORD_SIZE_IN_BITS"
+-- #endif
 instance BeamMigrateSqlBackend be => HasDefaultSqlDataType be Int where
-  defaultSqlDataType _ = defaultSqlDataType (Proxy @Int32)
-#elif WORD_SIZE_IN_BITS == 64
-instance ( BeamMigrateSqlBackend be, BeamSqlT071Backend be ) => HasDefaultSqlDataType be Int where
-  defaultSqlDataType _ = defaultSqlDataType (Proxy @Int64)
-#else
-#error "Unsupported word size; check the value of WORD_SIZE_IN_BITS"
-#endif
+  defaultSqlDataType _ _ _ = intType
 
 instance BeamMigrateSqlBackend be => HasDefaultSqlDataType be Int32 where
   defaultSqlDataType _ _ _ = intType
@@ -174,7 +176,7 @@ instance BeamMigrateSqlBackend be => HasDefaultSqlDataType be Double where
   defaultSqlDataType _ _ _ = doubleType
 
 instance BeamMigrateSqlBackend be => HasDefaultSqlDataType be Scientific where
-  defaultSqlDataType _ _ _ = numericType (Just (20, Just 10))
+  defaultSqlDataType _ _ _ = numericType (Just (10, Just 2))
 
 instance BeamMigrateSqlBackend be => HasDefaultSqlDataType be Day where
   defaultSqlDataType _ _ _ = dateType
