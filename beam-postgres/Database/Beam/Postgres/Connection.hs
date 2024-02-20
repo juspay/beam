@@ -192,6 +192,7 @@ withPgDebug dbg conn (Pg action) =
                            (mkProcess :: Pg (Maybe x) -> Pg a')
                            next) =
         do query <- pgRenderSyntax conn syntax
+           dbg (decodeUtf8 query)
            let Pg process = mkProcess (Pg (liftF (PgFetchNext id)))
            action' <- runF process finishProcess stepProcess Nothing
            (res, extime) <-
@@ -214,17 +215,17 @@ withPgDebug dbg conn (Pg action) =
                       columnCount = fromIntegral $ valuesNeeded (Proxy @Postgres) (Proxy @x)
                   resp <- Pg.queryWith_ (Pg.RP (put columnCount >> ask)) conn (Pg.Query query)
                   foldM runConsumer (PgStreamContinue nextStream) resp >>= finishUp
-           when (extime /= Nothing) $ dbg (decodeUtf8 query <> " Executed in: " <> T.pack (show (((sec (fromJust extime)) * 1000) + ((nsec (fromJust extime)) `div` 1000000)) <> " ms "))
-           when (extime == Nothing) $ dbg (decodeUtf8 query)
+          --  when (extime /= Nothing) $ dbg (decodeUtf8 query <> " Executed in: " <> T.pack (show (((sec (fromJust extime)) * 1000) + ((nsec (fromJust extime)) `div` 1000000)) <> " ms "))
+          --  when (extime == Nothing) $ dbg (decodeUtf8 query)
            return res
       step (PgRunReturning (PgCommandSyntax PgCommandTypeDataUpdateReturning syntax) mkProcess next) =
         do query <- pgRenderSyntax conn syntax
-
+           dbg (decodeUtf8 query)
            start <- getTime Monotonic
            res <- Pg.exec conn query
            end <- getTime Monotonic
            let extime = end - start
-           dbg (decodeUtf8 query <> " Executed in: " <> T.pack (show (((sec extime) * 1000) + ((nsec extime) `div` 1000000)) <> " ms "))
+          --  dbg (decodeUtf8 query <> " Executed in: " <> T.pack (show (((sec extime) * 1000) + ((nsec extime) `div` 1000000)) <> " ms "))
            sts <- Pg.resultStatus res
            case sts of
              Pg.TuplesOk -> do
@@ -234,11 +235,12 @@ withPgDebug dbg conn (Pg action) =
                                       res sts
       step (PgRunReturning (PgCommandSyntax _ syntax) mkProcess next) =
         do query <- pgRenderSyntax conn syntax
+           dbg (decodeUtf8 query)
            start <- getTime Monotonic
            _ <- Pg.execute_ conn (Pg.Query query)
            end <- getTime Monotonic
            let extime = end - start
-           dbg (decodeUtf8 query <> " Executed in: " <> T.pack (show (((sec extime) * 1000) + ((nsec extime) `div` 1000000)) <> " ms "))
+          --  dbg (decodeUtf8 query <> " Executed in: " <> T.pack (show (((sec extime) * 1000) + ((nsec extime) `div` 1000000)) <> " ms "))
            let Pg process = mkProcess (Pg (liftF (PgFetchNext id)))
            runF process next stepReturningNone
 
