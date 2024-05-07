@@ -19,12 +19,13 @@
 
 module Database.Beam.Postgres
   (  -- * Beam Postgres backend
-    Postgres(..), Pg, liftIOWithHandle
+    Postgres(..), Pg(..), liftIOWithHandle
 
     -- ** Postgres syntax
   , PgCommandSyntax, PgSyntax
   , PgSelectSyntax, PgInsertSyntax
   , PgUpdateSyntax, PgDeleteSyntax
+  , PgF(..)
 
     -- * Beam URI support
   , postgresUriSyntax
