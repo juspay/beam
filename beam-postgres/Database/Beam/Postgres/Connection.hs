@@ -193,7 +193,6 @@ withPgDebug dbg conn (Pg action) =
                            (mkProcess :: Pg (Maybe x) -> Pg a')
                            next) =
         do query <- pgRenderSyntax conn syntax
-           dbg (decodeUtf8 query)
            let Pg process = mkProcess (Pg (liftF (PgFetchNext id)))
            action' <- runF process finishProcess stepProcess Nothing
            (res, extime) <-
@@ -245,7 +244,6 @@ withPgDebug dbg conn (Pg action) =
                                             res sts
       step (PgRunReturning (PgCommandSyntax _ syntax) mkProcess next) =
         do query <- pgRenderSyntax conn syntax
-           dbg (decodeUtf8 query)
            start <- getTime Monotonic
            (respWithException :: Either SomeException a)  <- try $ Pg.execute_ conn (Pg.Query query)
            case respWithException of
