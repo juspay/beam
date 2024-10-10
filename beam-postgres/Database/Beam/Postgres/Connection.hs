@@ -76,6 +76,7 @@ import           Foreign.C.Types
 import           System.Clock
 
 import           Network.URI (uriToString)
+import Control.Exception (try)
 
 data PgStream a = PgStreamDone     (Either BeamRowReadError a)
                 | PgStreamContinue (Maybe PgI.Row -> IO (PgStream a))
@@ -198,9 +199,14 @@ withPgDebug dbg conn (Pg action) =
              case action' of
                 PgStreamDone (Right x) -> do
                   start <- getTime Monotonic
-                  Pg.execute_ conn (Pg.Query query)
-                  end <- getTime Monotonic
-                  (, Just (end - start)) <$> next x
+                  (respWithException ::Either SomeException a) <- try $ Pg.execute_ conn (Pg.Query query)
+                  case respWithException of
+                    Left err -> do
+                      dbg (decodeUtf8 query)
+                      return (Left $ BeamRowReadError Nothing $ ColumnErrorInternal (show err ) , Nothing) 
+                    Right _ -> do
+                      end <- getTime Monotonic
+                      (, Just (end - start)) <$> next x
                 PgStreamDone (Left err) -> pure (Left err, Nothing)
                 PgStreamContinue nextStream -> do
                   start <- getTime Monotonic
@@ -219,28 +225,37 @@ withPgDebug dbg conn (Pg action) =
            return res
       step (PgRunReturning (PgCommandSyntax PgCommandTypeDataUpdateReturning syntax) mkProcess next) =
         do query <- pgRenderSyntax conn syntax
-
            start <- getTime Monotonic
-           res <- Pg.exec conn query
-           end <- getTime Monotonic
-           let extime = end - start
-           dbg (decodeUtf8 query <> " Executed in: " <> T.pack (show (((sec extime) * 1000) + ((nsec extime) `div` 1000000)) <> " ms "))
-           sts <- Pg.resultStatus res
-           case sts of
-             Pg.TuplesOk -> do
-               let Pg process = mkProcess (Pg (liftF (PgFetchNext id)))
-               runF process (\x _ -> Pg.unsafeFreeResult res >> next x) (stepReturningList res) 0
-             _ -> Pg.throwResultError "No tuples returned to Postgres update/insert returning"
-                                      res sts
+           (respWithException :: Either SomeException a) <- try $ Pg.exec conn query
+           case respWithException of
+            Left err -> do
+              dbg (decodeUtf8 query)
+              return $ Left $ BeamRowReadError Nothing $ ColumnErrorInternal (show err )
+            Right res -> do 
+                end <- getTime Monotonic
+                let extime = end - start
+                dbg (decodeUtf8 query <> " Executed in: " <> T.pack (show (((sec extime) * 1000) + ((nsec extime) `div` 1000000)) <> " ms "))
+                sts <- Pg.resultStatus res
+                case sts of
+                  Pg.TuplesOk -> do
+                    let Pg process = mkProcess (Pg (liftF (PgFetchNext id)))
+                    runF process (\x _ -> Pg.unsafeFreeResult res >> next x) (stepReturningList res) 0
+                  _ -> Pg.throwResultError "No tuples returned to Postgres update/insert returning"
+                                            res sts
       step (PgRunReturning (PgCommandSyntax _ syntax) mkProcess next) =
         do query <- pgRenderSyntax conn syntax
            start <- getTime Monotonic
-           _ <- Pg.execute_ conn (Pg.Query query)
-           end <- getTime Monotonic
-           let extime = end - start
-           dbg (decodeUtf8 query <> " Executed in: " <> T.pack (show (((sec extime) * 1000) + ((nsec extime) `div` 1000000)) <> " ms "))
-           let Pg process = mkProcess (Pg (liftF (PgFetchNext id)))
-           runF process next stepReturningNone
+           (respWithException :: Either SomeException a)  <- try $ Pg.execute_ conn (Pg.Query query)
+           case respWithException of
+            Left err -> do
+              dbg (decodeUtf8 query)
+              return $ Left $ BeamRowReadError Nothing $ ColumnErrorInternal (show err )
+            Right _ -> do
+              end <- getTime Monotonic
+              let extime = end - start
+              dbg (decodeUtf8 query <> " Executed in: " <> T.pack (show (((sec extime) * 1000) + ((nsec extime) `div` 1000000)) <> " ms "))
+              let Pg process = mkProcess (Pg (liftF (PgFetchNext id)))
+              runF process next stepReturningNone
 
       stepReturningNone :: forall a. PgF (IO (Either BeamRowReadError a)) -> IO (Either BeamRowReadError a)
       stepReturningNone (PgLiftIO action' next) = action' >>= next
