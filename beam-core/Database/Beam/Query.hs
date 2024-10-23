@@ -90,7 +90,7 @@ module Database.Beam.Query
 
     -- ** @DELETE@
     , SqlDelete(..)
-    , delete, delete'
+    , delete, delete', deleteWLimit
     , runDelete ) where
 
 import Prelude hiding (lookup)
@@ -121,8 +121,6 @@ import Control.Monad.State.Strict
 import Data.Functor.Const (Const(..))
 import Data.Text (Text)
 import Data.Proxy
-
-import GHC.Types (Type)
 
 import Lens.Micro ((^.))
 
@@ -206,7 +204,7 @@ dumpSqlSelect q =
 -- * INSERT
 
 -- | Represents a SQL @INSERT@ command that has not yet been run
-data SqlInsert be (table :: (Type -> Type) -> Type)
+data SqlInsert be (table :: (* -> *) -> *)
   = SqlInsert !(TableSettings table) !(BeamSqlBackendInsertSyntax be)
   | SqlInsertNoRows
 
@@ -245,7 +243,7 @@ runInsert (SqlInsert _ i) = runNoReturn (insertCmd i)
 
 -- | Represents a source of values that can be inserted into a table shaped like
 --   'tbl'.
-data SqlInsertValues be proj --(tbl :: (Type -> Type) -> Type)
+data SqlInsertValues be proj --(tbl :: (* -> *) -> *)
     = SqlInsertValues (BeamSqlBackendInsertValuesSyntax be)
     | SqlInsertValuesEmpty
 
@@ -291,7 +289,7 @@ insertFrom s = SqlInsertValues (insertFromSql (buildSqlQuery "t" s))
 -- * UPDATE
 
 -- | Represents a SQL @UPDATE@ statement for the given @table@.
-data SqlUpdate be (table :: (Type -> Type) -> Type)
+data SqlUpdate be (table :: (* -> *) -> *)
   = SqlUpdate !(TableSettings table) !(BeamSqlBackendUpdateSyntax be)
   | SqlIdentityUpdate -- An update with no assignments
 
@@ -594,20 +592,21 @@ runUpdate SqlIdentityUpdate = pure ()
 -- * DELETE
 
 -- | Represents a SQL @DELETE@ statement for the given @table@
-data SqlDelete be (table :: (Type -> Type) -> Type)
+data SqlDelete be (table :: (* -> *) -> *)
   = SqlDelete !(TableSettings table) !(BeamSqlBackendDeleteSyntax be)
 
 -- | Build a 'SqlDelete' from a table and a way to build a @WHERE@ clause
 deleteImplementation :: forall bool be db table
         . BeamSqlBackend be
-       => DatabaseEntity be db (TableEntity table)
+       => Maybe Int
+       -> DatabaseEntity be db (TableEntity table)
           -- ^ Table to delete from
        -> (forall s. (forall s'. table (QExpr be s')) -> QExpr be s bool)
           -- ^ Build a @WHERE@ clause given a table containing expressions
        -> SqlDelete be table
-deleteImplementation (DatabaseEntity dt@(DatabaseTable {})) mkWhere =
+deleteImplementation limit (DatabaseEntity dt@(DatabaseTable {})) mkWhere =
   SqlDelete (dbTableSettings dt)
-            (deleteStmt (tableNameFromEntity dt) alias (Just (where_ "t")))
+            (deleteStmt (tableNameFromEntity dt) alias (Just (where_ "t")) limit)
   where
     supportsAlias = deleteSupportsAlias (Proxy @(BeamSqlBackendDeleteSyntax be))
 
@@ -625,7 +624,17 @@ delete :: forall be db table
        -> (forall s. (forall s'. table (QExpr be s')) -> QExpr be s Bool)
           -- ^ Build a @WHERE@ clause given a table containing expressions
        -> SqlDelete be table
-delete = deleteImplementation @Bool
+delete = (deleteImplementation @Bool) Nothing
+
+deleteWLimit :: forall be db table
+        . BeamSqlBackend be
+       => Maybe Int
+       -> DatabaseEntity be db (TableEntity table)
+          -- ^ Table to delete from
+       -> (forall s. (forall s'. table (QExpr be s')) -> QExpr be s SqlBool)
+          -- ^ Build a @WHERE@ clause given a table containing expressions
+       -> SqlDelete be table
+deleteWLimit = deleteImplementation @SqlBool
 
 delete' :: forall be db table
         . BeamSqlBackend be
@@ -634,7 +643,7 @@ delete' :: forall be db table
        -> (forall s. (forall s'. table (QExpr be s')) -> QExpr be s SqlBool)
           -- ^ Build a @WHERE@ clause given a table containing expressions
        -> SqlDelete be table
-delete' = deleteImplementation @SqlBool
+delete' = (deleteImplementation @SqlBool) Nothing
 
 -- | Run a 'SqlDelete' in a 'MonadBeam'
 runDelete :: (BeamSqlBackend be, MonadBeam be m)
