@@ -4,7 +4,6 @@
 {-# LANGUAGE UndecidableInstances #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE DeriveGeneric #-}
-{-# LANGUAGE DerivingStrategies #-}
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE CPP #-}
 
@@ -93,7 +92,7 @@ import           GHC.Generics
 -- value list is ignored.
 data SqliteSyntax = SqliteSyntax ((SQLData -> Builder) -> Builder) (DL.DList SQLData)
 newtype SqliteData = SqliteData SQLData -- newtype for Hashable
-                   deriving newtype (Eq)
+  deriving Eq
 
 instance Show SqliteSyntax where
   show (SqliteSyntax s d) =
@@ -902,11 +901,12 @@ instance IsSql92DeleteSyntax SqliteDeleteSyntax where
   type Sql92DeleteTableNameSyntax SqliteDeleteSyntax = SqliteTableNameSyntax
   type Sql92DeleteExpressionSyntax SqliteDeleteSyntax = SqliteExpressionSyntax
 
-  deleteStmt tbl Nothing where_ =
+  deleteStmt tbl Nothing where_ limit =
     SqliteDeleteSyntax $
     emit "DELETE FROM " <> fromSqliteTableName tbl <>
-    maybe mempty (\where_ -> emit " WHERE " <> fromSqliteExpression where_) where_
-  deleteStmt _ (Just _) _ =
+    maybe mempty (\where_ -> emit " WHERE " <> fromSqliteExpression where_) where_ <>
+    maybe mempty (emit . fromString . (" LIMIT " <>) . show) limit
+  deleteStmt _ (Just _) _ _ =
       error "beam-sqlite: invariant failed: DELETE must not have a table alias"
 
 spaces, parens :: SqliteSyntax -> SqliteSyntax
