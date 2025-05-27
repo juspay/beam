@@ -4,6 +4,8 @@ module Database.Beam.Query.Extract
       ExtractField(..),
 
       extract_,
+      jsonValid_,
+      unsafeJsonExtract_,
 
       -- ** SQL92 fields
       hour_, minutes_, seconds_,
@@ -20,6 +22,8 @@ import Database.Beam.Backend.SQL.SQL92 ( Sql92ExtractFieldSyntax
                                        , IsSql92ExtractFieldSyntax(..) )
 
 import Data.Time (LocalTime, UTCTime, TimeOfDay, Day)
+import Data.Text (Text)
+import           Control.Applicative (liftA2)
 
 -- | A field that can be extracted from SQL expressions of type 'tgt'
 -- that results in a type 'a', in backend 'be'.
@@ -31,6 +35,15 @@ extract_ :: BeamSqlBackend be
          => ExtractField be tgt a -> QGenExpr ctxt be s tgt -> QGenExpr cxt be s a
 extract_ (ExtractField field) (QExpr expr) =
     QExpr (extractE field <$> expr)
+
+jsonValid_ :: BeamSqlBackend be
+        => QGenExpr ctxt be s a -> QGenExpr ctxt be s Bool
+jsonValid_ (QExpr expr) = QExpr (jsonValidE <$> expr)
+
+unsafeJsonExtract_ :: BeamSqlBackend be 
+             => QGenExpr ctxt be s a -> QGenExpr ctxt be s Text -> QGenExpr ctxt be s b
+unsafeJsonExtract_ (QExpr expr) (QExpr field) =
+    QExpr (liftA2 jsonExtractE expr field)
 
 -- | Type-class for types that contain a time component
 class HasSqlTime tgt

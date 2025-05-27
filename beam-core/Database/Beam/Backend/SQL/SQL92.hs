@@ -236,6 +236,7 @@ class IsSql92DataTypeSyntax dataType where
 
 class ( HasSqlValueSyntax (Sql92ExpressionValueSyntax expr) Int
       , HasSqlValueSyntax (Sql92ExpressionValueSyntax expr) Bool
+      , HasSqlValueSyntax (Sql92ExpressionValueSyntax expr) Text
       , IsSql92FieldNameSyntax (Sql92ExpressionFieldNameSyntax expr)
       , IsSql92QuantifierSyntax (Sql92ExpressionQuantifierSyntax expr)
       , IsSql92DataTypeSyntax (Sql92ExpressionCastTargetSyntax expr)
@@ -309,7 +310,14 @@ class ( HasSqlValueSyntax (Sql92ExpressionValueSyntax expr) Int
   --   Implementations that do not support this, should use CASE .. WHEN ..
   absE :: expr -> expr
 
-  extractE :: Sql92ExpressionExtractFieldSyntax expr -> expr -> expr
+  extractE
+    :: Sql92ExpressionExtractFieldSyntax expr -> expr -> expr
+
+  jsonValidE 
+    :: expr -> expr
+    
+  jsonExtractE 
+    :: expr -> expr -> expr
 
   existsE, uniqueE, subqueryE
     :: Sql92ExpressionSelectSyntax expr -> expr

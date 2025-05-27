@@ -667,6 +667,7 @@ instance IsSql92ExpressionSyntax HsExpr where
   lowerE = hsApp (hsVar "lowerE") . pure
   upperE = hsApp (hsVar "upperE") . pure
   trimE = hsApp (hsVar "trimE") . pure
+  jsonValidE = hsApp (hsVar "jsonValidE") . pure
 
   existsE = error "existsE"
   uniqueE = error "uniqueE"
@@ -677,6 +678,7 @@ instance IsSql92ExpressionSyntax HsExpr where
 
   castE = error "castE"
   extractE = error "extractE"
+  jsonExtractE = error "jsonExtractE"
 
   isNullE = hsApp (hsVar "isNullE") . pure
   isNotNullE = hsApp (hsVar "isNotNullE") . pure
@@ -719,6 +721,10 @@ instance IsSql92ConstraintAttributesSyntax HsNone where
 
 instance HasSqlValueSyntax HsExpr Int where
   sqlValueSyntax = hsInt
+
+instance HasSqlValueSyntax HsExpr T.Text where
+  sqlValueSyntax = hsStr
+
 instance HasSqlValueSyntax HsExpr Bool where
   sqlValueSyntax True = hsVar "True"
   sqlValueSyntax False = hsVar "False"
