@@ -266,6 +266,7 @@ data Expression
   | ExpressionExtract ExtractField Expression
   | ExpressionJSONValid Expression
   | ExpressionJSONExtract Expression Expression
+  | ExpressionJSONUnquote Expression
   | ExpressionCharLength Expression
   | ExpressionOctetLength Expression
   | ExpressionBitLength Expression
@@ -328,6 +329,7 @@ instance IsSql92ExpressionSyntax Expression where
   extractE = ExpressionExtract
   jsonValidE = ExpressionJSONValid
   jsonExtractE = ExpressionJSONExtract
+  jsonUnquoteE = ExpressionJSONUnquote
 
   castE = ExpressionCast
 

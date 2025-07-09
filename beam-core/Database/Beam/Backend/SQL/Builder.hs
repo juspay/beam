@@ -238,6 +238,7 @@ instance IsSql92ExpressionSyntax SqlSyntaxBuilder where
   jsonValidE = sqlFuncOp "JSON_VALID"
   jsonExtractE what from =
     SqlSyntaxBuilder $ byteString "JSON_EXTRACT(" <> buildSql what <> byteString ", " <> buildSql from <> byteString ")"
+  jsonUnquoteE = sqlFuncOp "JSON_UNQUOTE"
   absE = sqlFuncOp "ABS"
   charLengthE = sqlFuncOp "CHAR_LENGTH"
   bitLengthE = sqlFuncOp "BIT_LENGTH"

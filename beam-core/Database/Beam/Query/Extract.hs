@@ -6,6 +6,7 @@ module Database.Beam.Query.Extract
       extract_,
       jsonValid_,
       unsafeJsonExtract_,
+      jsonUnquote_,
 
       -- ** SQL92 fields
       hour_, minutes_, seconds_,
@@ -44,6 +45,10 @@ unsafeJsonExtract_ :: BeamSqlBackend be
              => QGenExpr ctxt be s a -> QGenExpr ctxt be s Text -> QGenExpr ctxt be s b
 unsafeJsonExtract_ (QExpr expr) (QExpr field) =
     QExpr (liftA2 jsonExtractE expr field)
+
+jsonUnquote_ :: BeamSqlBackend be
+             => QGenExpr ctxt be s a -> QGenExpr ctxt be s b
+jsonUnquote_ (QExpr expr) = QExpr (jsonUnquoteE <$> expr)
 
 -- | Type-class for types that contain a time component
 class HasSqlTime tgt
