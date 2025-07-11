@@ -668,6 +668,7 @@ instance IsSql92ExpressionSyntax HsExpr where
   upperE = hsApp (hsVar "upperE") . pure
   trimE = hsApp (hsVar "trimE") . pure
   jsonValidE = hsApp (hsVar "jsonValidE") . pure
+  jsonUnquoteE = hsApp (hsVar "jsonUnquoteE") . pure
 
   existsE = error "existsE"
   uniqueE = error "uniqueE"
@@ -679,7 +680,6 @@ instance IsSql92ExpressionSyntax HsExpr where
   castE = error "castE"
   extractE = error "extractE"
   jsonExtractE = error "jsonExtractE"
-  jsonUnquoteE = error "jsonUnquoteE"
 
   isNullE = hsApp (hsVar "isNullE") . pure
   isNotNullE = hsApp (hsVar "isNotNullE") . pure
