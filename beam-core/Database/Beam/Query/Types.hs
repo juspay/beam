@@ -34,6 +34,30 @@ type instance QExprToIdentity (a, b, c, d, e, f, g) =
 type instance QExprToIdentity (a, b, c, d, e, f, g, h) =
   ( QExprToIdentity a, QExprToIdentity b, QExprToIdentity c, QExprToIdentity d, QExprToIdentity e, QExprToIdentity f
   , QExprToIdentity g, QExprToIdentity h )
+type instance QExprToIdentity (a, b, c, d, e, f, g, h, i) =
+  ( QExprToIdentity a, QExprToIdentity b, QExprToIdentity c, QExprToIdentity d, QExprToIdentity e, QExprToIdentity f
+  , QExprToIdentity g, QExprToIdentity h, QExprToIdentity i)
+type instance QExprToIdentity (a, b, c, d, e, f, g, h, i, j) =
+  ( QExprToIdentity a, QExprToIdentity b, QExprToIdentity c, QExprToIdentity d, QExprToIdentity e, QExprToIdentity f
+  , QExprToIdentity g, QExprToIdentity h, QExprToIdentity i, QExprToIdentity j)
+type instance QExprToIdentity (a, b, c, d, e, f, g, h, i, j, k) =
+  ( QExprToIdentity a, QExprToIdentity b, QExprToIdentity c, QExprToIdentity d, QExprToIdentity e, QExprToIdentity f
+  , QExprToIdentity g, QExprToIdentity h, QExprToIdentity i, QExprToIdentity j, QExprToIdentity k)
+type instance QExprToIdentity (a, b, c, d, e, f, g, h, i, j, k, l) =
+  ( QExprToIdentity a, QExprToIdentity b, QExprToIdentity c, QExprToIdentity d, QExprToIdentity e, QExprToIdentity f
+  , QExprToIdentity g, QExprToIdentity h, QExprToIdentity i, QExprToIdentity j, QExprToIdentity k, QExprToIdentity l)
+type instance QExprToIdentity (a, b, c, d, e, f, g, h, i, j, k, l, m) =
+  ( QExprToIdentity a, QExprToIdentity b, QExprToIdentity c, QExprToIdentity d, QExprToIdentity e, QExprToIdentity f
+  , QExprToIdentity g, QExprToIdentity h, QExprToIdentity i, QExprToIdentity j, QExprToIdentity k, QExprToIdentity l
+  , QExprToIdentity m)
+type instance QExprToIdentity (a, b, c, d, e, f, g, h, i, j, k, l, m, n) =
+  ( QExprToIdentity a, QExprToIdentity b, QExprToIdentity c, QExprToIdentity d, QExprToIdentity e, QExprToIdentity f
+  , QExprToIdentity g, QExprToIdentity h, QExprToIdentity i, QExprToIdentity j, QExprToIdentity k, QExprToIdentity l
+  , QExprToIdentity m, QExprToIdentity n)
+type instance QExprToIdentity (a, b, c, d, e, f, g, h, i, j, k, l, m, n, o) =
+  ( QExprToIdentity a, QExprToIdentity b, QExprToIdentity c, QExprToIdentity d, QExprToIdentity e, QExprToIdentity f
+  , QExprToIdentity g, QExprToIdentity h, QExprToIdentity i, QExprToIdentity j, QExprToIdentity k, QExprToIdentity l
+  , QExprToIdentity m, QExprToIdentity n, QExprToIdentity o)
 type instance QExprToIdentity (Vector n a) = Vector n (QExprToIdentity a)
 
 -- TODO can this be unified with QExprToIdentity?
@@ -55,6 +79,27 @@ type instance QExprToField (a, b, c, d, e, f, g) =
 type instance QExprToField (a, b, c, d, e, f, g, h) =
   ( QExprToField a, QExprToField b, QExprToField c, QExprToField d
   , QExprToField e, QExprToField f, QExprToField g, QExprToField h)
+type instance QExprToField (a, b, c, d, e, f, g, h, i) =
+  ( QExprToField a, QExprToField b, QExprToField c, QExprToField d
+  , QExprToField e, QExprToField f, QExprToField g, QExprToField h, QExprToField i)
+type instance QExprToField (a, b, c, d, e, f, g, h, i, j) =
+  ( QExprToField a, QExprToField b, QExprToField c, QExprToField d
+  , QExprToField e, QExprToField f, QExprToField g, QExprToField h, QExprToField i, QExprToField j)
+type instance QExprToField (a, b, c, d, e, f, g, h, i, j, k) =
+  ( QExprToField a, QExprToField b, QExprToField c, QExprToField d
+  , QExprToField e, QExprToField f, QExprToField g, QExprToField h, QExprToField i, QExprToField j, QExprToField k)
+type instance QExprToField (a, b, c, d, e, f, g, h, i, j, k, l) =
+  ( QExprToField a, QExprToField b, QExprToField c, QExprToField d
+  , QExprToField e, QExprToField f, QExprToField g, QExprToField h, QExprToField i, QExprToField j, QExprToField k, QExprToField l)
+type instance QExprToField (a, b, c, d, e, f, g, h, i, j, k, l, m) =
+  ( QExprToField a, QExprToField b, QExprToField c, QExprToField d
+  , QExprToField e, QExprToField f, QExprToField g, QExprToField h, QExprToField i, QExprToField j, QExprToField k, QExprToField l, QExprToField m)
+type instance QExprToField (a, b, c, d, e, f, g, h, i, j, k, l, m, n) =
+  ( QExprToField a, QExprToField b, QExprToField c, QExprToField d
+  , QExprToField e, QExprToField f, QExprToField g, QExprToField h, QExprToField i, QExprToField j, QExprToField k, QExprToField l, QExprToField m, QExprToField n)
+type instance QExprToField (a, b, c, d, e, f, g, h, i, j, k, l, m, n, o) =
+  ( QExprToField a, QExprToField b, QExprToField c, QExprToField d
+  , QExprToField e, QExprToField f, QExprToField g, QExprToField h, QExprToField i, QExprToField j, QExprToField k, QExprToField l, QExprToField m, QExprToField n, QExprToField o)
 type instance QExprToField (Vector n a) = Vector n (QExprToField a)
 
 class BeamSqlBackend be => HasQBuilder be where

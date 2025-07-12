@@ -709,6 +709,81 @@ instance ( SqlOrderable be a, SqlOrderable be b
     makeSQLOrdering be (a, b, c, d, e, f, g, h) =
       makeSQLOrdering be a <> makeSQLOrdering be b <> makeSQLOrdering be c <> makeSQLOrdering be d <>
       makeSQLOrdering be e <> makeSQLOrdering be f <> makeSQLOrdering be g <> makeSQLOrdering be h
+instance ( SqlOrderable be a, SqlOrderable be b
+         , SqlOrderable be c, SqlOrderable be d
+         , SqlOrderable be e, SqlOrderable be f
+         , SqlOrderable be g, SqlOrderable be h
+         , SqlOrderable be i) => SqlOrderable be (a, b, c, d, e, f, g, h, i) where
+    makeSQLOrdering be (a, b, c, d, e, f, g, h, i) =
+      makeSQLOrdering be a <> makeSQLOrdering be b <> makeSQLOrdering be c <> makeSQLOrdering be d <>
+      makeSQLOrdering be e <> makeSQLOrdering be f <> makeSQLOrdering be g <> makeSQLOrdering be h <>
+      makeSQLOrdering be i
+instance ( SqlOrderable be a, SqlOrderable be b
+         , SqlOrderable be c, SqlOrderable be d
+         , SqlOrderable be e, SqlOrderable be f
+         , SqlOrderable be g, SqlOrderable be h
+         , SqlOrderable be i, SqlOrderable be j) => SqlOrderable be (a, b, c, d, e, f, g, h, i, j) where
+    makeSQLOrdering be (a, b, c, d, e, f, g, h, i, j) =
+      makeSQLOrdering be a <> makeSQLOrdering be b <> makeSQLOrdering be c <> makeSQLOrdering be d <>
+      makeSQLOrdering be e <> makeSQLOrdering be f <> makeSQLOrdering be g <> makeSQLOrdering be h <>
+      makeSQLOrdering be i <> makeSQLOrdering be j
+instance ( SqlOrderable be a, SqlOrderable be b
+         , SqlOrderable be c, SqlOrderable be d
+         , SqlOrderable be e, SqlOrderable be f
+         , SqlOrderable be g, SqlOrderable be h
+         , SqlOrderable be i, SqlOrderable be j
+         , SqlOrderable be k) => SqlOrderable be (a, b, c, d, e, f, g, h, i, j, k) where
+    makeSQLOrdering be (a, b, c, d, e, f, g, h, i, j, k) =
+      makeSQLOrdering be a <> makeSQLOrdering be b <> makeSQLOrdering be c <> makeSQLOrdering be d <>
+      makeSQLOrdering be e <> makeSQLOrdering be f <> makeSQLOrdering be g <> makeSQLOrdering be h <>
+      makeSQLOrdering be i <> makeSQLOrdering be j <> makeSQLOrdering be k
+instance ( SqlOrderable be a, SqlOrderable be b
+         , SqlOrderable be c, SqlOrderable be d
+         , SqlOrderable be e, SqlOrderable be f
+         , SqlOrderable be g, SqlOrderable be h
+         , SqlOrderable be i, SqlOrderable be j
+         , SqlOrderable be k, SqlOrderable be l) => SqlOrderable be (a, b, c, d, e, f, g, h, i, j, k, l) where
+    makeSQLOrdering be (a, b, c, d, e, f, g, h, i, j, k, l) =
+      makeSQLOrdering be a <> makeSQLOrdering be b <> makeSQLOrdering be c <> makeSQLOrdering be d <>
+      makeSQLOrdering be e <> makeSQLOrdering be f <> makeSQLOrdering be g <> makeSQLOrdering be h <>
+      makeSQLOrdering be i <> makeSQLOrdering be j <> makeSQLOrdering be k <> makeSQLOrdering be l
+instance ( SqlOrderable be a, SqlOrderable be b
+         , SqlOrderable be c, SqlOrderable be d
+         , SqlOrderable be e, SqlOrderable be f
+         , SqlOrderable be g, SqlOrderable be h
+         , SqlOrderable be i, SqlOrderable be j
+         , SqlOrderable be k, SqlOrderable be l
+         , SqlOrderable be m) => SqlOrderable be (a, b, c, d, e, f, g, h, i, j, k, l, m) where
+    makeSQLOrdering be (a, b, c, d, e, f, g, h, i, j, k, l, m) =
+      makeSQLOrdering be a <> makeSQLOrdering be b <> makeSQLOrdering be c <> makeSQLOrdering be d <>
+      makeSQLOrdering be e <> makeSQLOrdering be f <> makeSQLOrdering be g <> makeSQLOrdering be h <>
+      makeSQLOrdering be i <> makeSQLOrdering be j <> makeSQLOrdering be k <> makeSQLOrdering be l <>
+      makeSQLOrdering be m
+instance ( SqlOrderable be a, SqlOrderable be b
+         , SqlOrderable be c, SqlOrderable be d
+         , SqlOrderable be e, SqlOrderable be f
+         , SqlOrderable be g, SqlOrderable be h
+         , SqlOrderable be i, SqlOrderable be j
+         , SqlOrderable be k, SqlOrderable be l
+         , SqlOrderable be m, SqlOrderable be n) => SqlOrderable be (a, b, c, d, e, f, g, h, i, j, k, l, m, n) where
+    makeSQLOrdering be (a, b, c, d, e, f, g, h, i, j, k, l, m, n) =
+      makeSQLOrdering be a <> makeSQLOrdering be b <> makeSQLOrdering be c <> makeSQLOrdering be d <>
+      makeSQLOrdering be e <> makeSQLOrdering be f <> makeSQLOrdering be g <> makeSQLOrdering be h <>
+      makeSQLOrdering be i <> makeSQLOrdering be j <> makeSQLOrdering be k <> makeSQLOrdering be l <>
+      makeSQLOrdering be m <> makeSQLOrdering be n
+instance ( SqlOrderable be a, SqlOrderable be b
+         , SqlOrderable be c, SqlOrderable be d
+         , SqlOrderable be e, SqlOrderable be f
+         , SqlOrderable be g, SqlOrderable be h
+         , SqlOrderable be i, SqlOrderable be j
+         , SqlOrderable be k, SqlOrderable be l
+         , SqlOrderable be m, SqlOrderable be n
+         , SqlOrderable be o) => SqlOrderable be (a, b, c, d, e, f, g, h, i, j, k, l, m, n, o) where
+    makeSQLOrdering be (a, b, c, d, e, f, g, h, i, j, k, l, m, n, o) =
+      makeSQLOrdering be a <> makeSQLOrdering be b <> makeSQLOrdering be c <> makeSQLOrdering be d <>
+      makeSQLOrdering be e <> makeSQLOrdering be f <> makeSQLOrdering be g <> makeSQLOrdering be h <>
+      makeSQLOrdering be i <> makeSQLOrdering be j <> makeSQLOrdering be k <> makeSQLOrdering be l <>
+      makeSQLOrdering be m <> makeSQLOrdering be n <> makeSQLOrdering be o
 
 -- | Order by the given expressions. The return type of the ordering key should
 --   either be the result of 'asc_' or 'desc_' (or another ordering 'QOrd'

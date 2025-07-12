@@ -342,6 +342,99 @@ instance ( ThreadRewritable s a, ThreadRewritable s b, ThreadRewritable s c, Thr
   rewriteThread s' (a, b, c, d, e, f, g, h) =
     ( rewriteThread s' a, rewriteThread s' b, rewriteThread s' c, rewriteThread s' d
     , rewriteThread s' e, rewriteThread s' f, rewriteThread s' g, rewriteThread s' h )
+instance ( ThreadRewritable s a, ThreadRewritable s b, ThreadRewritable s c, ThreadRewritable s d
+         , ThreadRewritable s e, ThreadRewritable s f, ThreadRewritable s g, ThreadRewritable s h
+         , ThreadRewritable s i) =>
+  ThreadRewritable s (a, b, c, d, e, f, g, h, i) where
+  type WithRewrittenThread s s' (a, b, c, d, e, f, g, h, i) =
+    ( WithRewrittenThread s s' a, WithRewrittenThread s s' b, WithRewrittenThread s s' c, WithRewrittenThread s s' d
+    , WithRewrittenThread s s' e, WithRewrittenThread s s' f, WithRewrittenThread s s' g, WithRewrittenThread s s' h
+    , WithRewrittenThread s s' i)
+  rewriteThread s' (a, b, c, d, e, f, g, h, i) =
+    ( rewriteThread s' a, rewriteThread s' b, rewriteThread s' c, rewriteThread s' d
+    , rewriteThread s' e, rewriteThread s' f, rewriteThread s' g, rewriteThread s' h
+    , rewriteThread s' i)
+instance ( ThreadRewritable s a, ThreadRewritable s b, ThreadRewritable s c, ThreadRewritable s d
+         , ThreadRewritable s e, ThreadRewritable s f, ThreadRewritable s g, ThreadRewritable s h
+         , ThreadRewritable s i, ThreadRewritable s j) =>
+  ThreadRewritable s (a, b, c, d, e, f, g, h, i, j) where
+  type WithRewrittenThread s s' (a, b, c, d, e, f, g, h, i, j) =
+    ( WithRewrittenThread s s' a, WithRewrittenThread s s' b, WithRewrittenThread s s' c, WithRewrittenThread s s' d
+    , WithRewrittenThread s s' e, WithRewrittenThread s s' f, WithRewrittenThread s s' g, WithRewrittenThread s s' h
+    , WithRewrittenThread s s' i, WithRewrittenThread s s' j)
+  rewriteThread s' (a, b, c, d, e, f, g, h, i, j) =
+    ( rewriteThread s' a, rewriteThread s' b, rewriteThread s' c, rewriteThread s' d
+    , rewriteThread s' e, rewriteThread s' f, rewriteThread s' g, rewriteThread s' h
+    , rewriteThread s' i, rewriteThread s' j)
+instance ( ThreadRewritable s a, ThreadRewritable s b, ThreadRewritable s c, ThreadRewritable s d
+         , ThreadRewritable s e, ThreadRewritable s f, ThreadRewritable s g, ThreadRewritable s h
+         , ThreadRewritable s i, ThreadRewritable s j, ThreadRewritable s k) =>
+  ThreadRewritable s (a, b, c, d, e, f, g, h, i, j, k) where
+  type WithRewrittenThread s s' (a, b, c, d, e, f, g, h, i, j, k) =
+    ( WithRewrittenThread s s' a, WithRewrittenThread s s' b, WithRewrittenThread s s' c, WithRewrittenThread s s' d
+    , WithRewrittenThread s s' e, WithRewrittenThread s s' f, WithRewrittenThread s s' g, WithRewrittenThread s s' h
+    , WithRewrittenThread s s' i, WithRewrittenThread s s' j, WithRewrittenThread s s' k)
+  rewriteThread s' (a, b, c, d, e, f, g, h, i, j, k) =
+    ( rewriteThread s' a, rewriteThread s' b, rewriteThread s' c, rewriteThread s' d
+    , rewriteThread s' e, rewriteThread s' f, rewriteThread s' g, rewriteThread s' h
+    , rewriteThread s' i, rewriteThread s' j, rewriteThread s' k)
+instance ( ThreadRewritable s a, ThreadRewritable s b, ThreadRewritable s c, ThreadRewritable s d
+         , ThreadRewritable s e, ThreadRewritable s f, ThreadRewritable s g, ThreadRewritable s h
+         , ThreadRewritable s i, ThreadRewritable s j, ThreadRewritable s k, ThreadRewritable s l) =>
+  ThreadRewritable s (a, b, c, d, e, f, g, h, i, j, k, l) where
+  type WithRewrittenThread s s' (a, b, c, d, e, f, g, h, i, j, k, l) =
+    ( WithRewrittenThread s s' a, WithRewrittenThread s s' b, WithRewrittenThread s s' c, WithRewrittenThread s s' d
+    , WithRewrittenThread s s' e, WithRewrittenThread s s' f, WithRewrittenThread s s' g, WithRewrittenThread s s' h
+    , WithRewrittenThread s s' i, WithRewrittenThread s s' j, WithRewrittenThread s s' k, WithRewrittenThread s s' l)
+  rewriteThread s' (a, b, c, d, e, f, g, h, i, j, k, l) =
+    ( rewriteThread s' a, rewriteThread s' b, rewriteThread s' c, rewriteThread s' d
+    , rewriteThread s' e, rewriteThread s' f, rewriteThread s' g, rewriteThread s' h
+    , rewriteThread s' i, rewriteThread s' j, rewriteThread s' k, rewriteThread s' l)
+instance ( ThreadRewritable s a, ThreadRewritable s b, ThreadRewritable s c, ThreadRewritable s d
+         , ThreadRewritable s e, ThreadRewritable s f, ThreadRewritable s g, ThreadRewritable s h
+         , ThreadRewritable s i, ThreadRewritable s j, ThreadRewritable s k, ThreadRewritable s l
+         , ThreadRewritable s m) =>
+  ThreadRewritable s (a, b, c, d, e, f, g, h, i, j, k, l, m) where
+  type WithRewrittenThread s s' (a, b, c, d, e, f, g, h, i, j, k, l, m) =
+    ( WithRewrittenThread s s' a, WithRewrittenThread s s' b, WithRewrittenThread s s' c, WithRewrittenThread s s' d
+    , WithRewrittenThread s s' e, WithRewrittenThread s s' f, WithRewrittenThread s s' g, WithRewrittenThread s s' h
+    , WithRewrittenThread s s' i, WithRewrittenThread s s' j, WithRewrittenThread s s' k, WithRewrittenThread s s' l
+    , WithRewrittenThread s s' m)
+  rewriteThread s' (a, b, c, d, e, f, g, h, i, j, k, l, m) =
+    ( rewriteThread s' a, rewriteThread s' b, rewriteThread s' c, rewriteThread s' d
+    , rewriteThread s' e, rewriteThread s' f, rewriteThread s' g, rewriteThread s' h
+    , rewriteThread s' i, rewriteThread s' j, rewriteThread s' k, rewriteThread s' l
+    , rewriteThread s' m)
+instance ( ThreadRewritable s a, ThreadRewritable s b, ThreadRewritable s c, ThreadRewritable s d
+         , ThreadRewritable s e, ThreadRewritable s f, ThreadRewritable s g, ThreadRewritable s h
+         , ThreadRewritable s i, ThreadRewritable s j, ThreadRewritable s k, ThreadRewritable s l
+         , ThreadRewritable s m, ThreadRewritable s n) =>
+  ThreadRewritable s (a, b, c, d, e, f, g, h, i, j, k, l, m, n) where
+  type WithRewrittenThread s s' (a, b, c, d, e, f, g, h, i, j, k, l, m, n) =
+    ( WithRewrittenThread s s' a, WithRewrittenThread s s' b, WithRewrittenThread s s' c, WithRewrittenThread s s' d
+    , WithRewrittenThread s s' e, WithRewrittenThread s s' f, WithRewrittenThread s s' g, WithRewrittenThread s s' h
+    , WithRewrittenThread s s' i, WithRewrittenThread s s' j, WithRewrittenThread s s' k, WithRewrittenThread s s' l
+    , WithRewrittenThread s s' m, WithRewrittenThread s s' n)
+  rewriteThread s' (a, b, c, d, e, f, g, h, i, j, k, l, m, n) =
+    ( rewriteThread s' a, rewriteThread s' b, rewriteThread s' c, rewriteThread s' d
+    , rewriteThread s' e, rewriteThread s' f, rewriteThread s' g, rewriteThread s' h
+    , rewriteThread s' i, rewriteThread s' j, rewriteThread s' k, rewriteThread s' l
+    , rewriteThread s' m, rewriteThread s' n)
+instance ( ThreadRewritable s a, ThreadRewritable s b, ThreadRewritable s c, ThreadRewritable s d
+         , ThreadRewritable s e, ThreadRewritable s f, ThreadRewritable s g, ThreadRewritable s h
+         , ThreadRewritable s i, ThreadRewritable s j, ThreadRewritable s k, ThreadRewritable s l
+         , ThreadRewritable s m, ThreadRewritable s n, ThreadRewritable s o) =>
+  ThreadRewritable s (a, b, c, d, e, f, g, h, i, j, k, l, m, n, o) where
+  type WithRewrittenThread s s' (a, b, c, d, e, f, g, h, i, j, k, l, m, n, o) =
+    ( WithRewrittenThread s s' a, WithRewrittenThread s s' b, WithRewrittenThread s s' c, WithRewrittenThread s s' d
+    , WithRewrittenThread s s' e, WithRewrittenThread s s' f, WithRewrittenThread s s' g, WithRewrittenThread s s' h
+    , WithRewrittenThread s s' i, WithRewrittenThread s s' j, WithRewrittenThread s s' k, WithRewrittenThread s s' l
+    , WithRewrittenThread s s' m, WithRewrittenThread s s' n, WithRewrittenThread s s' o)
+  rewriteThread s' (a, b, c, d, e, f, g, h, i, j, k, l, m, n, o) =
+    ( rewriteThread s' a, rewriteThread s' b, rewriteThread s' c, rewriteThread s' d
+    , rewriteThread s' e, rewriteThread s' f, rewriteThread s' g, rewriteThread s' h
+    , rewriteThread s' i, rewriteThread s' j, rewriteThread s' k, rewriteThread s' l
+    , rewriteThread s' m, rewriteThread s' n, rewriteThread s' o)
 
 class ContextRewritable a where
   type WithRewrittenContext a ctxt :: Type
@@ -417,6 +510,117 @@ instance ( ContextRewritable a, ContextRewritable b, ContextRewritable c
     ( rewriteContext p a, rewriteContext p b, rewriteContext p c
     , rewriteContext p d, rewriteContext p e, rewriteContext p f
     , rewriteContext p g, rewriteContext p h )
+instance ( ContextRewritable a, ContextRewritable b, ContextRewritable c
+         , ContextRewritable d, ContextRewritable e, ContextRewritable f
+         , ContextRewritable g, ContextRewritable h, ContextRewritable i ) =>
+    ContextRewritable (a, b, c, d, e, f, g, h, i) where
+  type WithRewrittenContext (a, b, c, d, e, f, g, h, i) ctxt =
+      ( WithRewrittenContext a ctxt, WithRewrittenContext b ctxt, WithRewrittenContext c ctxt
+      , WithRewrittenContext d ctxt, WithRewrittenContext e ctxt, WithRewrittenContext f ctxt
+      , WithRewrittenContext g ctxt, WithRewrittenContext h ctxt, WithRewrittenContext i ctxt )
+  rewriteContext p (a, b, c, d, e, f, g, h, i) =
+    ( rewriteContext p a, rewriteContext p b, rewriteContext p c
+    , rewriteContext p d, rewriteContext p e, rewriteContext p f
+    , rewriteContext p g, rewriteContext p h, rewriteContext p i )
+instance ( ContextRewritable a, ContextRewritable b, ContextRewritable c
+         , ContextRewritable d, ContextRewritable e, ContextRewritable f
+         , ContextRewritable g, ContextRewritable h, ContextRewritable i
+         , ContextRewritable j ) =>
+    ContextRewritable (a, b, c, d, e, f, g, h, i, j) where
+  type WithRewrittenContext (a, b, c, d, e, f, g, h, i, j) ctxt =
+      ( WithRewrittenContext a ctxt, WithRewrittenContext b ctxt, WithRewrittenContext c ctxt
+      , WithRewrittenContext d ctxt, WithRewrittenContext e ctxt, WithRewrittenContext f ctxt
+      , WithRewrittenContext g ctxt, WithRewrittenContext h ctxt, WithRewrittenContext i ctxt
+      , WithRewrittenContext j ctxt )
+  rewriteContext p (a, b, c, d, e, f, g, h, i, j) =
+    ( rewriteContext p a, rewriteContext p b, rewriteContext p c
+    , rewriteContext p d, rewriteContext p e, rewriteContext p f
+    , rewriteContext p g, rewriteContext p h, rewriteContext p i
+    , rewriteContext p j )
+instance ( ContextRewritable a, ContextRewritable b, ContextRewritable c
+         , ContextRewritable d, ContextRewritable e, ContextRewritable f
+         , ContextRewritable g, ContextRewritable h, ContextRewritable i
+         , ContextRewritable j, ContextRewritable k ) =>
+    ContextRewritable (a, b, c, d, e, f, g, h, i, j, k) where
+  type WithRewrittenContext (a, b, c, d, e, f, g, h, i, j, k) ctxt =
+      ( WithRewrittenContext a ctxt, WithRewrittenContext b ctxt, WithRewrittenContext c ctxt
+      , WithRewrittenContext d ctxt, WithRewrittenContext e ctxt, WithRewrittenContext f ctxt
+      , WithRewrittenContext g ctxt, WithRewrittenContext h ctxt, WithRewrittenContext i ctxt
+      , WithRewrittenContext j ctxt, WithRewrittenContext k ctxt )
+  rewriteContext p (a, b, c, d, e, f, g, h, i, j, k) =
+    ( rewriteContext p a, rewriteContext p b, rewriteContext p c
+    , rewriteContext p d, rewriteContext p e, rewriteContext p f
+    , rewriteContext p g, rewriteContext p h, rewriteContext p i
+    , rewriteContext p j, rewriteContext p k )
+instance ( ContextRewritable a, ContextRewritable b, ContextRewritable c
+         , ContextRewritable d, ContextRewritable e, ContextRewritable f
+         , ContextRewritable g, ContextRewritable h, ContextRewritable i
+         , ContextRewritable j, ContextRewritable k, ContextRewritable l ) =>
+    ContextRewritable (a, b, c, d, e, f, g, h, i, j, k, l) where
+  type WithRewrittenContext (a, b, c, d, e, f, g, h, i, j, k, l) ctxt =
+      ( WithRewrittenContext a ctxt, WithRewrittenContext b ctxt, WithRewrittenContext c ctxt
+      , WithRewrittenContext d ctxt, WithRewrittenContext e ctxt, WithRewrittenContext f ctxt
+      , WithRewrittenContext g ctxt, WithRewrittenContext h ctxt, WithRewrittenContext i ctxt
+      , WithRewrittenContext j ctxt, WithRewrittenContext k ctxt, WithRewrittenContext l ctxt )
+  rewriteContext p (a, b, c, d, e, f, g, h, i, j, k, l) =
+    ( rewriteContext p a, rewriteContext p b, rewriteContext p c
+    , rewriteContext p d, rewriteContext p e, rewriteContext p f
+    , rewriteContext p g, rewriteContext p h, rewriteContext p i
+    , rewriteContext p j, rewriteContext p k, rewriteContext p l )
+instance ( ContextRewritable a, ContextRewritable b, ContextRewritable c
+         , ContextRewritable d, ContextRewritable e, ContextRewritable f
+         , ContextRewritable g, ContextRewritable h, ContextRewritable i
+         , ContextRewritable j, ContextRewritable k, ContextRewritable l
+         , ContextRewritable m ) =>
+    ContextRewritable (a, b, c, d, e, f, g, h, i, j, k, l, m) where
+  type WithRewrittenContext (a, b, c, d, e, f, g, h, i, j, k, l, m) ctxt =
+      ( WithRewrittenContext a ctxt, WithRewrittenContext b ctxt, WithRewrittenContext c ctxt
+      , WithRewrittenContext d ctxt, WithRewrittenContext e ctxt, WithRewrittenContext f ctxt
+      , WithRewrittenContext g ctxt, WithRewrittenContext h ctxt, WithRewrittenContext i ctxt
+      , WithRewrittenContext j ctxt, WithRewrittenContext k ctxt, WithRewrittenContext l ctxt
+      , WithRewrittenContext m ctxt )
+  rewriteContext p (a, b, c, d, e, f, g, h, i, j, k, l, m) =
+    ( rewriteContext p a, rewriteContext p b, rewriteContext p c
+    , rewriteContext p d, rewriteContext p e, rewriteContext p f
+    , rewriteContext p g, rewriteContext p h, rewriteContext p i
+    , rewriteContext p j, rewriteContext p k, rewriteContext p l
+    , rewriteContext p m )
+instance ( ContextRewritable a, ContextRewritable b, ContextRewritable c
+         , ContextRewritable d, ContextRewritable e, ContextRewritable f
+         , ContextRewritable g, ContextRewritable h, ContextRewritable i
+         , ContextRewritable j, ContextRewritable k, ContextRewritable l
+         , ContextRewritable m, ContextRewritable n ) =>
+    ContextRewritable (a, b, c, d, e, f, g, h, i, j, k, l, m, n) where
+  type WithRewrittenContext (a, b, c, d, e, f, g, h, i, j, k, l, m, n) ctxt =
+      ( WithRewrittenContext a ctxt, WithRewrittenContext b ctxt, WithRewrittenContext c ctxt
+      , WithRewrittenContext d ctxt, WithRewrittenContext e ctxt, WithRewrittenContext f ctxt
+      , WithRewrittenContext g ctxt, WithRewrittenContext h ctxt, WithRewrittenContext i ctxt
+      , WithRewrittenContext j ctxt, WithRewrittenContext k ctxt, WithRewrittenContext l ctxt
+      , WithRewrittenContext m ctxt, WithRewrittenContext n ctxt )
+  rewriteContext p (a, b, c, d, e, f, g, h, i, j, k, l, m, n) =
+    ( rewriteContext p a, rewriteContext p b, rewriteContext p c
+    , rewriteContext p d, rewriteContext p e, rewriteContext p f
+    , rewriteContext p g, rewriteContext p h, rewriteContext p i
+    , rewriteContext p j, rewriteContext p k, rewriteContext p l
+    , rewriteContext p m, rewriteContext p n )
+instance ( ContextRewritable a, ContextRewritable b, ContextRewritable c
+         , ContextRewritable d, ContextRewritable e, ContextRewritable f
+         , ContextRewritable g, ContextRewritable h, ContextRewritable i
+         , ContextRewritable j, ContextRewritable k, ContextRewritable l
+         , ContextRewritable m, ContextRewritable n, ContextRewritable o ) =>
+    ContextRewritable (a, b, c, d, e, f, g, h, i, j, k, l, m, n, o) where
+  type WithRewrittenContext (a, b, c, d, e, f, g, h, i, j, k, l, m, n, o) ctxt =
+      ( WithRewrittenContext a ctxt, WithRewrittenContext b ctxt, WithRewrittenContext c ctxt
+      , WithRewrittenContext d ctxt, WithRewrittenContext e ctxt, WithRewrittenContext f ctxt
+      , WithRewrittenContext g ctxt, WithRewrittenContext h ctxt, WithRewrittenContext i ctxt
+      , WithRewrittenContext j ctxt, WithRewrittenContext k ctxt, WithRewrittenContext l ctxt
+      , WithRewrittenContext m ctxt, WithRewrittenContext n ctxt, WithRewrittenContext o ctxt )
+  rewriteContext p (a, b, c, d, e, f, g, h, i, j, k, l, m, n, o) =
+    ( rewriteContext p a, rewriteContext p b, rewriteContext p c
+    , rewriteContext p d, rewriteContext p e, rewriteContext p f
+    , rewriteContext p g, rewriteContext p h, rewriteContext p i
+    , rewriteContext p j, rewriteContext p k, rewriteContext p l
+    , rewriteContext p m, rewriteContext p n, rewriteContext p o )
 
 newtype BeamSqlBackendExpressionSyntax' be
   = BeamSqlBackendExpressionSyntax'
@@ -575,6 +779,172 @@ instance ( ProjectibleWithPredicate contextPredicate be res a, ProjectibleWithPr
               <*> projectSkeleton' context be mkM
               <*> projectSkeleton' context be mkM
               <*> projectSkeleton' context be mkM
+instance ( ProjectibleWithPredicate contextPredicate be res a, ProjectibleWithPredicate contextPredicate be res b, ProjectibleWithPredicate contextPredicate be res c
+         , ProjectibleWithPredicate contextPredicate be res d, ProjectibleWithPredicate contextPredicate be res e, ProjectibleWithPredicate contextPredicate be res f
+         , ProjectibleWithPredicate contextPredicate be res g, ProjectibleWithPredicate contextPredicate be res h, ProjectibleWithPredicate contextPredicate be res i ) =>
+  ProjectibleWithPredicate contextPredicate be res (a, b, c, d, e, f, g, h, i) where
+
+  project' context be mkE (a, b, c, d, e, f, g, h, i) =
+    (,,,,,,,,) <$> project' context be mkE a <*> project' context be mkE b <*> project' context be mkE c <*> project' context be mkE d
+               <*> project' context be mkE e <*> project' context be mkE f <*> project' context be mkE g <*> project' context be mkE h
+               <*> project' context be mkE i
+  projectSkeleton' context be mkM =
+    (,,,,,,,,) <$> projectSkeleton' context be mkM
+               <*> projectSkeleton' context be mkM
+               <*> projectSkeleton' context be mkM
+               <*> projectSkeleton' context be mkM
+               <*> projectSkeleton' context be mkM
+               <*> projectSkeleton' context be mkM
+               <*> projectSkeleton' context be mkM
+               <*> projectSkeleton' context be mkM
+               <*> projectSkeleton' context be mkM
+instance ( ProjectibleWithPredicate contextPredicate be res a, ProjectibleWithPredicate contextPredicate be res b, ProjectibleWithPredicate contextPredicate be res c
+         , ProjectibleWithPredicate contextPredicate be res d, ProjectibleWithPredicate contextPredicate be res e, ProjectibleWithPredicate contextPredicate be res f
+         , ProjectibleWithPredicate contextPredicate be res g, ProjectibleWithPredicate contextPredicate be res h, ProjectibleWithPredicate contextPredicate be res i
+         , ProjectibleWithPredicate contextPredicate be res j ) =>
+  ProjectibleWithPredicate contextPredicate be res (a, b, c, d, e, f, g, h, i, j) where
+
+  project' context be mkE (a, b, c, d, e, f, g, h, i, j) =
+    (,,,,,,,,,) <$> project' context be mkE a <*> project' context be mkE b <*> project' context be mkE c <*> project' context be mkE d
+               <*> project' context be mkE e <*> project' context be mkE f <*> project' context be mkE g <*> project' context be mkE h
+               <*> project' context be mkE i <*> project' context be mkE j
+  projectSkeleton' context be mkM =
+    (,,,,,,,,,) <$> projectSkeleton' context be mkM
+               <*> projectSkeleton' context be mkM
+               <*> projectSkeleton' context be mkM
+               <*> projectSkeleton' context be mkM
+               <*> projectSkeleton' context be mkM
+               <*> projectSkeleton' context be mkM
+               <*> projectSkeleton' context be mkM
+               <*> projectSkeleton' context be mkM
+               <*> projectSkeleton' context be mkM
+               <*> projectSkeleton' context be mkM
+instance ( ProjectibleWithPredicate contextPredicate be res a, ProjectibleWithPredicate contextPredicate be res b, ProjectibleWithPredicate contextPredicate be res c
+         , ProjectibleWithPredicate contextPredicate be res d, ProjectibleWithPredicate contextPredicate be res e, ProjectibleWithPredicate contextPredicate be res f
+         , ProjectibleWithPredicate contextPredicate be res g, ProjectibleWithPredicate contextPredicate be res h, ProjectibleWithPredicate contextPredicate be res i
+         , ProjectibleWithPredicate contextPredicate be res j, ProjectibleWithPredicate contextPredicate be res k ) =>
+  ProjectibleWithPredicate contextPredicate be res (a, b, c, d, e, f, g, h, i, j, k) where
+
+  project' context be mkE (a, b, c, d, e, f, g, h, i, j, k) =
+    (,,,,,,,,,,) <$> project' context be mkE a <*> project' context be mkE b <*> project' context be mkE c <*> project' context be mkE d
+                 <*> project' context be mkE e <*> project' context be mkE f <*> project' context be mkE g <*> project' context be mkE h
+                 <*> project' context be mkE i <*> project' context be mkE j <*> project' context be mkE k
+  projectSkeleton' context be mkM =
+    (,,,,,,,,,,) <$> projectSkeleton' context be mkM
+                 <*> projectSkeleton' context be mkM
+                 <*> projectSkeleton' context be mkM
+                 <*> projectSkeleton' context be mkM
+                 <*> projectSkeleton' context be mkM
+                 <*> projectSkeleton' context be mkM
+                 <*> projectSkeleton' context be mkM
+                 <*> projectSkeleton' context be mkM
+                 <*> projectSkeleton' context be mkM
+                 <*> projectSkeleton' context be mkM
+                 <*> projectSkeleton' context be mkM
+instance ( ProjectibleWithPredicate contextPredicate be res a, ProjectibleWithPredicate contextPredicate be res b, ProjectibleWithPredicate contextPredicate be res c
+         , ProjectibleWithPredicate contextPredicate be res d, ProjectibleWithPredicate contextPredicate be res e, ProjectibleWithPredicate contextPredicate be res f
+         , ProjectibleWithPredicate contextPredicate be res g, ProjectibleWithPredicate contextPredicate be res h, ProjectibleWithPredicate contextPredicate be res i
+         , ProjectibleWithPredicate contextPredicate be res j, ProjectibleWithPredicate contextPredicate be res k, ProjectibleWithPredicate contextPredicate be res l ) =>
+  ProjectibleWithPredicate contextPredicate be res (a, b, c, d, e, f, g, h, i, j, k, l) where
+
+  project' context be mkE (a, b, c, d, e, f, g, h, i, j, k, l) =
+    (,,,,,,,,,,,) <$> project' context be mkE a <*> project' context be mkE b <*> project' context be mkE c <*> project' context be mkE d
+                  <*> project' context be mkE e <*> project' context be mkE f <*> project' context be mkE g <*> project' context be mkE h
+                  <*> project' context be mkE i <*> project' context be mkE j <*> project' context be mkE k <*> project' context be mkE l
+  projectSkeleton' context be mkM =
+    (,,,,,,,,,,,) <$> projectSkeleton' context be mkM
+                  <*> projectSkeleton' context be mkM
+                  <*> projectSkeleton' context be mkM
+                  <*> projectSkeleton' context be mkM
+                  <*> projectSkeleton' context be mkM
+                  <*> projectSkeleton' context be mkM
+                  <*> projectSkeleton' context be mkM
+                  <*> projectSkeleton' context be mkM
+                  <*> projectSkeleton' context be mkM
+                  <*> projectSkeleton' context be mkM
+                  <*> projectSkeleton' context be mkM
+                  <*> projectSkeleton' context be mkM
+instance ( ProjectibleWithPredicate contextPredicate be res a, ProjectibleWithPredicate contextPredicate be res b, ProjectibleWithPredicate contextPredicate be res c
+         , ProjectibleWithPredicate contextPredicate be res d, ProjectibleWithPredicate contextPredicate be res e, ProjectibleWithPredicate contextPredicate be res f
+         , ProjectibleWithPredicate contextPredicate be res g, ProjectibleWithPredicate contextPredicate be res h, ProjectibleWithPredicate contextPredicate be res i
+         , ProjectibleWithPredicate contextPredicate be res j, ProjectibleWithPredicate contextPredicate be res k, ProjectibleWithPredicate contextPredicate be res l
+         , ProjectibleWithPredicate contextPredicate be res m ) =>
+  ProjectibleWithPredicate contextPredicate be res (a, b, c, d, e, f, g, h, i, j, k, l, m) where
+
+  project' context be mkE (a, b, c, d, e, f, g, h, i, j, k, l, m) =
+    (,,,,,,,,,,,,) <$> project' context be mkE a <*> project' context be mkE b <*> project' context be mkE c <*> project' context be mkE d
+                   <*> project' context be mkE e <*> project' context be mkE f <*> project' context be mkE g <*> project' context be mkE h
+                   <*> project' context be mkE i <*> project' context be mkE j <*> project' context be mkE k <*> project' context be mkE l
+                   <*> project' context be mkE m
+  projectSkeleton' context be mkM =
+    (,,,,,,,,,,,,) <$> projectSkeleton' context be mkM
+                   <*> projectSkeleton' context be mkM
+                   <*> projectSkeleton' context be mkM
+                   <*> projectSkeleton' context be mkM
+                   <*> projectSkeleton' context be mkM
+                   <*> projectSkeleton' context be mkM
+                   <*> projectSkeleton' context be mkM
+                   <*> projectSkeleton' context be mkM
+                   <*> projectSkeleton' context be mkM
+                   <*> projectSkeleton' context be mkM
+                   <*> projectSkeleton' context be mkM
+                   <*> projectSkeleton' context be mkM
+                   <*> projectSkeleton' context be mkM
+instance ( ProjectibleWithPredicate contextPredicate be res a, ProjectibleWithPredicate contextPredicate be res b, ProjectibleWithPredicate contextPredicate be res c
+         , ProjectibleWithPredicate contextPredicate be res d, ProjectibleWithPredicate contextPredicate be res e, ProjectibleWithPredicate contextPredicate be res f
+         , ProjectibleWithPredicate contextPredicate be res g, ProjectibleWithPredicate contextPredicate be res h, ProjectibleWithPredicate contextPredicate be res i
+         , ProjectibleWithPredicate contextPredicate be res j, ProjectibleWithPredicate contextPredicate be res k, ProjectibleWithPredicate contextPredicate be res l
+         , ProjectibleWithPredicate contextPredicate be res m, ProjectibleWithPredicate contextPredicate be res n ) =>
+  ProjectibleWithPredicate contextPredicate be res (a, b, c, d, e, f, g, h, i, j, k, l, m, n) where
+
+  project' context be mkE (a, b, c, d, e, f, g, h, i, j, k, l, m, n) =
+    (,,,,,,,,,,,,,) <$> project' context be mkE a <*> project' context be mkE b <*> project' context be mkE c <*> project' context be mkE d
+                    <*> project' context be mkE e <*> project' context be mkE f <*> project' context be mkE g <*> project' context be mkE h
+                    <*> project' context be mkE i <*> project' context be mkE j <*> project' context be mkE k <*> project' context be mkE l
+                    <*> project' context be mkE m <*> project' context be mkE n
+  projectSkeleton' context be mkM =
+    (,,,,,,,,,,,,,) <$> projectSkeleton' context be mkM
+                    <*> projectSkeleton' context be mkM
+                    <*> projectSkeleton' context be mkM
+                    <*> projectSkeleton' context be mkM
+                    <*> projectSkeleton' context be mkM
+                    <*> projectSkeleton' context be mkM
+                    <*> projectSkeleton' context be mkM
+                    <*> projectSkeleton' context be mkM
+                    <*> projectSkeleton' context be mkM
+                    <*> projectSkeleton' context be mkM
+                    <*> projectSkeleton' context be mkM
+                    <*> projectSkeleton' context be mkM
+                    <*> projectSkeleton' context be mkM
+                    <*> projectSkeleton' context be mkM
+instance ( ProjectibleWithPredicate contextPredicate be res a, ProjectibleWithPredicate contextPredicate be res b, ProjectibleWithPredicate contextPredicate be res c
+         , ProjectibleWithPredicate contextPredicate be res d, ProjectibleWithPredicate contextPredicate be res e, ProjectibleWithPredicate contextPredicate be res f
+         , ProjectibleWithPredicate contextPredicate be res g, ProjectibleWithPredicate contextPredicate be res h, ProjectibleWithPredicate contextPredicate be res i
+         , ProjectibleWithPredicate contextPredicate be res j, ProjectibleWithPredicate contextPredicate be res k, ProjectibleWithPredicate contextPredicate be res l
+         , ProjectibleWithPredicate contextPredicate be res m, ProjectibleWithPredicate contextPredicate be res n, ProjectibleWithPredicate contextPredicate be res o ) =>
+  ProjectibleWithPredicate contextPredicate be res (a, b, c, d, e, f, g, h, i, j, k, l, m, n, o) where
+
+  project' context be mkE (a, b, c, d, e, f, g, h, i, j, k, l, m, n, o) =
+    (,,,,,,,,,,,,,,) <$> project' context be mkE a <*> project' context be mkE b <*> project' context be mkE c <*> project' context be mkE d
+                     <*> project' context be mkE e <*> project' context be mkE f <*> project' context be mkE g <*> project' context be mkE h
+                     <*> project' context be mkE i <*> project' context be mkE j <*> project' context be mkE k <*> project' context be mkE l
+                     <*> project' context be mkE m <*> project' context be mkE n <*> project' context be mkE o
+  projectSkeleton' context be mkM =
+    (,,,,,,,,,,,,,,) <$> projectSkeleton' context be mkM
+                     <*> projectSkeleton' context be mkM
+                     <*> projectSkeleton' context be mkM
+                     <*> projectSkeleton' context be mkM
+                     <*> projectSkeleton' context be mkM
+                     <*> projectSkeleton' context be mkM
+                     <*> projectSkeleton' context be mkM
+                     <*> projectSkeleton' context be mkM
+                     <*> projectSkeleton' context be mkM
+                     <*> projectSkeleton' context be mkM
+                     <*> projectSkeleton' context be mkM
+                     <*> projectSkeleton' context be mkM
+                     <*> projectSkeleton' context be mkM
+                     <*> projectSkeleton' context be mkM
+                     <*> projectSkeleton' context be mkM
 
 -- TODO add projectSkeleton'
 instance Beamable t => ProjectibleWithPredicate AnyType () T.Text (t (QField s)) where
