@@ -722,6 +722,112 @@ instance ( Retaggable f' a, Retaggable f' b, Retaggable f' c, Retaggable f' d
     ( retag transform a, retag transform b, retag transform c, retag transform d
     , retag transform e, retag transform f, retag transform g, retag transform h )
 
+instance ( Retaggable f' a, Retaggable f' b, Retaggable f' c, Retaggable f' d
+         , Retaggable f' e, Retaggable f' f, Retaggable f' g, Retaggable f' h
+         , Retaggable f' i) =>
+  Retaggable f' (a, b, c, d, e, f, g, h, i) where
+  type Retag tag (a, b, c, d, e, f, g, h, i) =
+    ( Retag tag a, Retag tag b, Retag tag c, Retag tag d
+    , Retag tag e, Retag tag f, Retag tag g, Retag tag h
+    , Retag tag i)
+
+  retag transform (a, b, c, d, e, f, g, h, i) =
+    ( retag transform a, retag transform b, retag transform c, retag transform d
+    , retag transform e, retag transform f, retag transform g, retag transform h
+    , retag transform i)
+
+instance ( Retaggable f' a, Retaggable f' b, Retaggable f' c, Retaggable f' d
+         , Retaggable f' e, Retaggable f' f, Retaggable f' g, Retaggable f' h
+         , Retaggable f' i, Retaggable f' j) =>
+  Retaggable f' (a, b, c, d, e, f, g, h, i, j) where
+  type Retag tag (a, b, c, d, e, f, g, h, i, j) =
+    ( Retag tag a, Retag tag b, Retag tag c, Retag tag d
+    , Retag tag e, Retag tag f, Retag tag g, Retag tag h
+    , Retag tag i, Retag tag j)
+
+  retag transform (a, b, c, d, e, f, g, h, i, j) =
+    ( retag transform a, retag transform b, retag transform c, retag transform d
+    , retag transform e, retag transform f, retag transform g, retag transform h
+    , retag transform i, retag transform j)
+
+instance ( Retaggable f' a, Retaggable f' b, Retaggable f' c, Retaggable f' d
+         , Retaggable f' e, Retaggable f' f, Retaggable f' g, Retaggable f' h
+         , Retaggable f' i, Retaggable f' j, Retaggable f' k) =>
+  Retaggable f' (a, b, c, d, e, f, g, h, i, j, k) where
+  type Retag tag (a, b, c, d, e, f, g, h, i, j, k) =
+    ( Retag tag a, Retag tag b, Retag tag c, Retag tag d
+    , Retag tag e, Retag tag f, Retag tag g, Retag tag h
+    , Retag tag i, Retag tag j, Retag tag k)
+
+  retag transform (a, b, c, d, e, f, g, h, i, j, k) =
+    ( retag transform a, retag transform b, retag transform c, retag transform d
+    , retag transform e, retag transform f, retag transform g, retag transform h
+    , retag transform i, retag transform j, retag transform k)
+
+instance ( Retaggable f' a, Retaggable f' b, Retaggable f' c, Retaggable f' d
+         , Retaggable f' e, Retaggable f' f, Retaggable f' g, Retaggable f' h
+         , Retaggable f' i, Retaggable f' j, Retaggable f' k, Retaggable f' l) =>
+  Retaggable f' (a, b, c, d, e, f, g, h, i, j, k, l) where
+  type Retag tag (a, b, c, d, e, f, g, h, i, j, k, l) =
+    ( Retag tag a, Retag tag b, Retag tag c, Retag tag d
+    , Retag tag e, Retag tag f, Retag tag g, Retag tag h
+    , Retag tag i, Retag tag j, Retag tag k, Retag tag l)
+
+  retag transform (a, b, c, d, e, f, g, h, i, j, k, l) =
+    ( retag transform a, retag transform b, retag transform c, retag transform d
+    , retag transform e, retag transform f, retag transform g, retag transform h
+    , retag transform i, retag transform j, retag transform k, retag transform l)
+
+instance ( Retaggable f' a, Retaggable f' b, Retaggable f' c, Retaggable f' d
+         , Retaggable f' e, Retaggable f' f, Retaggable f' g, Retaggable f' h
+         , Retaggable f' i, Retaggable f' j, Retaggable f' k, Retaggable f' l
+         , Retaggable f' m) =>
+  Retaggable f' (a, b, c, d, e, f, g, h, i, j, k, l, m) where
+  type Retag tag (a, b, c, d, e, f, g, h, i, j, k, l, m) =
+    ( Retag tag a, Retag tag b, Retag tag c, Retag tag d
+    , Retag tag e, Retag tag f, Retag tag g, Retag tag h
+    , Retag tag i, Retag tag j, Retag tag k, Retag tag l
+    , Retag tag m)
+
+  retag transform (a, b, c, d, e, f, g, h, i, j, k, l, m) =
+    ( retag transform a, retag transform b, retag transform c, retag transform d
+    , retag transform e, retag transform f, retag transform g, retag transform h
+    , retag transform i, retag transform j, retag transform k, retag transform l
+    , retag transform m)
+
+instance ( Retaggable f' a, Retaggable f' b, Retaggable f' c, Retaggable f' d
+         , Retaggable f' e, Retaggable f' f, Retaggable f' g, Retaggable f' h
+         , Retaggable f' i, Retaggable f' j, Retaggable f' k, Retaggable f' l
+         , Retaggable f' m, Retaggable f' n) =>
+  Retaggable f' (a, b, c, d, e, f, g, h, i, j, k, l, m, n) where
+  type Retag tag (a, b, c, d, e, f, g, h, i, j, k, l, m, n) =
+    ( Retag tag a, Retag tag b, Retag tag c, Retag tag d
+    , Retag tag e, Retag tag f, Retag tag g, Retag tag h
+    , Retag tag i, Retag tag j, Retag tag k, Retag tag l
+    , Retag tag m, Retag tag n)
+
+  retag transform (a, b, c, d, e, f, g, h, i, j, k, l, m, n) =
+    ( retag transform a, retag transform b, retag transform c, retag transform d
+    , retag transform e, retag transform f, retag transform g, retag transform h
+    , retag transform i, retag transform j, retag transform k, retag transform l
+    , retag transform m, retag transform n)
+
+instance ( Retaggable f' a, Retaggable f' b, Retaggable f' c, Retaggable f' d
+         , Retaggable f' e, Retaggable f' f, Retaggable f' g, Retaggable f' h
+         , Retaggable f' i, Retaggable f' j, Retaggable f' k, Retaggable f' l
+         , Retaggable f' m, Retaggable f' n, Retaggable f' o) =>
+  Retaggable f' (a, b, c, d, e, f, g, h, i, j, k, l, m, n, o) where
+  type Retag tag (a, b, c, d, e, f, g, h, i, j, k, l, m, n, o) =
+    ( Retag tag a, Retag tag b, Retag tag c, Retag tag d
+    , Retag tag e, Retag tag f, Retag tag g, Retag tag h
+    , Retag tag i, Retag tag j, Retag tag k, Retag tag l
+    , Retag tag m, Retag tag n, Retag tag o)
+
+  retag transform (a, b, c, d, e, f, g, h, i, j, k, l, m, n, o) =
+    ( retag transform a, retag transform b, retag transform c, retag transform d
+    , retag transform e, retag transform f, retag transform g, retag transform h
+    , retag transform i, retag transform j, retag transform k, retag transform l
+    , retag transform m, retag transform n, retag transform o)
 -- | Carry a constraint instance and the value it applies to.
 data WithConstraint (c :: Type -> Constraint) x where
   WithConstraint :: c x => x -> WithConstraint c x
