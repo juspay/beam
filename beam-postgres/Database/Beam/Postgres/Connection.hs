@@ -61,7 +61,7 @@ import qualified Control.Monad.Fail as Fail
 import           Data.ByteString (ByteString)
 import           Data.ByteString.Builder (toLazyByteString, byteString)
 import qualified Data.ByteString.Lazy as BL
-import           Data.Maybe (listToMaybe, fromMaybe)
+import           Data.Maybe (listToMaybe, fromMaybe, fromJust)
 import           Data.Proxy
 import           Data.String
 import           Data.Text (Text)
@@ -202,15 +202,21 @@ withPgDebug dbg conn (Pg action) =
                   end <- getTime Monotonic
                   (, Just (end - start)) <$> next x
                 PgStreamDone (Left err) -> pure (Left err, Nothing)
-                PgStreamContinue nextStream ->
-                  let finishUp (PgStreamDone (Right x)) = (, Nothing) <$> next x
+                PgStreamContinue nextStream -> do
+                  start <- getTime Monotonic
+                  let finishUp (PgStreamDone (Right x)) = do
+                            output <- next x
+                            end <- getTime Monotonic
+                            pure (output, Just $ end - start)
                       finishUp (PgStreamDone (Left err)) = pure (Left err, Nothing)
                       finishUp (PgStreamContinue next') = next' Nothing >>= finishUp
 
                       columnCount = fromIntegral $ valuesNeeded (Proxy @Postgres) (Proxy @x)
-                  in do resp <- Pg.queryWith_ (Pg.RP (put columnCount >> ask)) conn (Pg.Query query)
-                        foldM runConsumer (PgStreamContinue nextStream) resp >>= finishUp
-           dbg (decodeUtf8 query <> " Executed in: " <> T.pack (show extime) <> " seconds ") >> return res
+                  resp <- Pg.queryWith_ (Pg.RP (put columnCount >> ask)) conn (Pg.Query query)
+                  foldM runConsumer (PgStreamContinue nextStream) resp >>= finishUp
+           when (extime /= Nothing) $ dbg (decodeUtf8 query <> " Executed in: " <> T.pack (show (((sec (fromJust extime)) * 1000) + ((nsec (fromJust extime)) `div` 1000000)) <> " ms "))
+           when (extime == Nothing) $ dbg (decodeUtf8 query)
+           return res
       step (PgRunReturning (PgCommandSyntax PgCommandTypeDataUpdateReturning syntax) mkProcess next) =
         do query <- pgRenderSyntax conn syntax
 
@@ -218,7 +224,7 @@ withPgDebug dbg conn (Pg action) =
            res <- Pg.exec conn query
            end <- getTime Monotonic
            let extime = end - start
-           dbg (decodeUtf8 query <> " Executed in: " <> T.pack (show extime) <> " seconds ")
+           dbg (decodeUtf8 query <> " Executed in: " <> T.pack (show (((sec extime) * 1000) + ((nsec extime) `div` 1000000)) <> " ms "))
            sts <- Pg.resultStatus res
            case sts of
              Pg.TuplesOk -> do
@@ -232,7 +238,7 @@ withPgDebug dbg conn (Pg action) =
            _ <- Pg.execute_ conn (Pg.Query query)
            end <- getTime Monotonic
            let extime = end - start
-           dbg (decodeUtf8 query <> " Executed in: " <> T.pack (show extime) <> " seconds ")
+           dbg (decodeUtf8 query <> " Executed in: " <> T.pack (show (((sec extime) * 1000) + ((nsec extime) `div` 1000000)) <> " ms "))
            let Pg process = mkProcess (Pg (liftF (PgFetchNext id)))
            runF process next stepReturningNone
 
