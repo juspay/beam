@@ -720,6 +720,12 @@ instance ToJSON a => HasSqlValueSyntax PgValueSyntax (PgJSON a) where
     PgValueSyntax $
     emit "'" <> escapeString (BL.toStrict (encode a)) <> emit "'::json"
 
+instance (ToJSON a) => ToJSON (PgJSON a) where
+  toJSON (PgJSON x) = toJSON x
+
+instance (FromJSON a) => FromJSON (PgJSON a) where
+  parseJSON v = PgJSON <$> parseJSON v
+
 -- | The Postgres @JSONB@ type, which stores JSON-encoded data in a
 -- postgres-specific binary format. Like 'PgJSON', the type parameter indicates
 -- the Haskell type which the JSON encodes.
