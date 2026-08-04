@@ -45,6 +45,7 @@ module Database.Beam.Sqlite.Syntax
   ) where
 
 import           Database.Beam.Backend.SQL
+import           Database.Beam.Backend.SQL.SQL92
 import           Database.Beam.Backend.SQL.AST (ExtractField(..))
 import           Database.Beam.Haskell.Syntax
 import           Database.Beam.Migrate.Checks (HasDataTypeCreatedCheck(..))
@@ -52,6 +53,7 @@ import           Database.Beam.Migrate.SQL.Builder hiding (fromSqlConstraintAttr
 import           Database.Beam.Migrate.SQL.SQL92
 import           Database.Beam.Migrate.Serialization
 import           Database.Beam.Query hiding (ExtractField(..))
+
 
 import           Data.ByteString (ByteString)
 import qualified Data.ByteString as B
@@ -867,14 +869,16 @@ instance IsSql92AggregationSetQuantifierSyntax SqliteAggregationSetQuantifierSyn
   setQuantifierDistinct = SqliteAggregationSetQuantifierSyntax (emit "DISTINCT")
   setQuantifierAll = SqliteAggregationSetQuantifierSyntax (emit "ALL")
 
-instance IsSql92AggregationIndexHintsSyntax SqliteExpressionSyntax where
-  setIndexForce = error "Not Implemented for sqlite"
-  setIndexUse = error "Not Implemented for sqlite"
+instance IsSql92AggregationIndexHintsSyntax SqliteAggregationSetQuantifierSyntax where
+  type Sql92AggregationIndexHintsSyntax SqliteAggregationSetQuantifierSyntax = SqliteExpressionSyntax
+
+  setIndexForce = const (SqliteAggregationSetQuantifierSyntax mempty)
+  setIndexUse = const (SqliteAggregationSetQuantifierSyntax mempty)
 
 instance IsSql92InsertSyntax SqliteInsertSyntax where
   type Sql92InsertTableNameSyntax SqliteInsertSyntax = SqliteTableNameSyntax
   type Sql92InsertValuesSyntax SqliteInsertSyntax = SqliteInsertValuesSyntax
-
+     
   insertStmt table fields values = SqliteInsertSyntax table fields values Nothing
 
 instance IsSql92InsertValuesSyntax SqliteInsertValuesSyntax where

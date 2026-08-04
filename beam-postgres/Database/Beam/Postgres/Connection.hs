@@ -57,6 +57,7 @@ import qualified Database.PostgreSQL.Simple.Types as Pg (Query(..))
 import           Control.Monad.Reader
 import           Control.Monad.State
 import qualified Control.Monad.Fail as Fail
+import           Control.Monad(foldM)
 
 import           Data.ByteString (ByteString)
 import           Data.ByteString.Builder (toLazyByteString, byteString)

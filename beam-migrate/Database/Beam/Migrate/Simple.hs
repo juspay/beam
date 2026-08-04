@@ -96,7 +96,9 @@ defaultUpToDateHooks =
 -- Tries to bring the database up to date, using the database log and the given
 -- 'MigrationSteps'. Fails if the migration is irreversible, or an error occurs.
 bringUpToDate :: ( Database be db, Fail.MonadFail m
-                 , HasDataTypeCreatedCheck (BeamMigrateSqlBackendDataTypeSyntax be) )
+                 , HasDataTypeCreatedCheck (BeamMigrateSqlBackendDataTypeSyntax be)
+                 , BeamSqlBackendCanSerialize be Int
+                 , BeamSqlBackendCanDeserialize be Int )
               => BeamMigrationBackend be m
               -> MigrationSteps be () (CheckedDatabaseSettings be db)
               -> m (Maybe (CheckedDatabaseSettings be db))
@@ -112,7 +114,9 @@ bringUpToDate be@BeamMigrationBackend {} =
 -- with 'defaultUpToDateHooks' is the same as using 'bringUpToDate'.
 bringUpToDateWithHooks :: forall db be m
                         . ( Database be db, Fail.MonadFail m
-                          , HasDataTypeCreatedCheck (BeamMigrateSqlBackendDataTypeSyntax be) )
+                          , HasDataTypeCreatedCheck (BeamMigrateSqlBackendDataTypeSyntax be)
+                          , BeamSqlBackendCanSerialize be Int
+                          , BeamSqlBackendCanDeserialize be Int )
                        => BringUpToDateHooks m
                        -> BeamMigrationBackend be m
                        -> MigrationSteps be () (CheckedDatabaseSettings be db)

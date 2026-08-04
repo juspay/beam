@@ -25,6 +25,7 @@ import           Control.Applicative
 import           Control.Exception (Exception)
 import           Control.Monad.Free.Church
 import           Control.Monad.Identity
+import           Control.Monad (replicateM_)
 import           Data.Tagged
 import           Data.Typeable
 import           Data.Vector.Sized (Vector)
@@ -277,13 +278,13 @@ instance ( BeamBackend be, Generic (tbl (Nullable Identity)), Generic (tbl (Null
   valuesNeeded be _ = gValuesNeeded be (Proxy @(Rep (tbl (Nullable Exposed)))) (Proxy @(Rep (tbl (Nullable Identity))))
 
 instance (FromBackendRow be x, FromBackendRow be SqlNull) => FromBackendRow be (Maybe x) where
-  fromBackendRow =
-    (Just <$> fromBackendRow) <|>
-    (Nothing <$
-      replicateM_ (valuesNeeded (Proxy @be) (Proxy @(Maybe x)))
-                  (do SqlNull <- fromBackendRow
-                      pure ()))
-  valuesNeeded be _ = valuesNeeded be (Proxy @x)
+    fromBackendRow =
+      (Just <$> fromBackendRow) <|>
+      (Nothing <$
+        replicateM_ (valuesNeeded (Proxy @be) (Proxy @(Maybe x)))
+                    (do SqlNull <- fromBackendRow
+                        pure ()))
+    valuesNeeded be _ = valuesNeeded be (Proxy @x)
 
 instance (BeamBackend be, FromBackendRow be t) => FromBackendRow be (Tagged tag t) where
   fromBackendRow = Tagged <$> fromBackendRow

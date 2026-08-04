@@ -117,6 +117,7 @@ updateSchemaToCurrent :: forall be m
                        . ( BeamMigrateSqlBackend be
                          , HasDataTypeCreatedCheck (BeamMigrateSqlBackendDataTypeSyntax be)
                          , BeamSqlBackendCanSerialize be Text
+                         , BeamSqlBackendCanSerialize be Int
                          , MonadBeam be m )
                       => m ()
 updateSchemaToCurrent =
@@ -128,6 +129,7 @@ recordCommit :: forall be m
                , BeamSqlBackendSupportsDataType be Text
                , BeamSqlBackendCanDeserialize be Int
                , BeamSqlBackendCanDeserialize be LocalTime
+               , BeamSqlBackendCanSerialize be Int
                , HasQBuilder be
                , MonadBeam be m )
              => UUID -> m ()
@@ -145,7 +147,10 @@ recordCommit commitId = do
 
 -- Ensure the backend tables exist
 ensureBackendTables :: forall be m
-                     . (BeamSqlBackendCanSerialize be Text, Fail.MonadFail m)
+                     . ( BeamSqlBackendCanSerialize be Text
+                     , BeamSqlBackendCanSerialize be Int
+                     , BeamSqlBackendCanDeserialize be Int
+                     , Fail.MonadFail m )
                     => BeamMigrationBackend be m
                     -> m ()
 ensureBackendTables be@BeamMigrationBackend { backendGetDbConstraints = getCs } =

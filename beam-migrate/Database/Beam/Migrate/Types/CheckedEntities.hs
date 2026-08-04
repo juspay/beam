@@ -14,11 +14,12 @@ import Database.Beam.Migrate.Types.Predicates
 import Control.Applicative
 import Control.Monad.Writer
 import Control.Monad.Identity
+import Control.Monad (forM_)
 
 import Data.Proxy
 import Data.Text (Text)
 import Data.String
-
+import Data.Semigroup (Endo(..))
 import GHC.Types
 import GHC.Generics
 

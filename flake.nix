@@ -1,6 +1,6 @@
 {
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-unstable";
+    nixpkgs.url = "github:nixos/nixpkgs/89c2b2330e733d6cdb5eae7b899326930c2c0648";
     flake-parts.url = "github:hercules-ci/flake-parts";
     haskell-flake.url = "github:srid/haskell-flake";
   };
@@ -14,8 +14,18 @@
       perSystem = { self', pkgs, lib, config, ... }: {
         haskellProjects.default = {
           projectFlakeName = "beam";
-          basePackages = pkgs.haskell.packages.ghc927;
+          basePackages = pkgs.haskell.packages.ghc98;
           autoWire = ["packages" "checks" "devShells" "apps"];
+          devShell.tools = hp: {
+            "haskell-language-server" = null;
+          };
+          packages = {
+            beam-core.source = ./beam-core;
+            beam-migrate.source = ./beam-migrate;
+            beam-migrate-cli.source = ./beam-migrate-cli;
+            beam-postgres.source = ./beam-postgres;
+            beam-sqlite.source = ./beam-sqlite;
+          };
           settings = {
             pretty-simple = {
               check = false;
@@ -24,4 +34,4 @@
         };
       };
     });
-}  
+}

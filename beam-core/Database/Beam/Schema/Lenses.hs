@@ -16,6 +16,7 @@ import Database.Beam.Schema.Tables
 import Control.Monad.Identity
 
 import Data.Proxy
+import Data.Function (fix)
 
 import GHC.Generics
 import GHC.Types (Type)

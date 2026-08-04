@@ -87,6 +87,7 @@ module Database.Beam.Postgres.Syntax
 
 import           Database.Beam hiding (insert)
 import           Database.Beam.Backend.SQL
+import           Database.Beam.Backend.SQL.SQL92
 import           Database.Beam.Migrate
 import           Database.Beam.Migrate.Checks (HasDataTypeCreatedCheck(..))
 import           Database.Beam.Migrate.SQL.Builder hiding (fromSqlConstraintAttributes)
@@ -457,7 +458,6 @@ instance IsSql92SelectSyntax PgSelectSyntax where
 
 instance IsSql92SelectTableSyntax PgSelectTableSyntax where
   type Sql92SelectTableSelectSyntax PgSelectTableSyntax = PgSelectSyntax
-  type Sql92SelectTableSetIndexHintsSyntax PgSelectTableSyntax = PgExpressionSyntax
   type Sql92SelectTableExpressionSyntax PgSelectTableSyntax = PgExpressionSyntax
   type Sql92SelectTableProjectionSyntax PgSelectTableSyntax = PgProjectionSyntax
   type Sql92SelectTableFromSyntax PgSelectTableSyntax = PgFromSyntax
@@ -673,9 +673,11 @@ mkNumericPrec :: Maybe (Word, Maybe Word) -> Maybe Int32
 mkNumericPrec Nothing = Nothing
 mkNumericPrec (Just (whole, dec)) = Just $ (fromIntegral whole `shiftL` 16) .|. (fromIntegral (fromMaybe 0 dec) .&. 0xFFFF)
 
-instance IsSql92AggregationIndexHintsSyntax PgExpressionSyntax where
-  setIndexForce = error "Not Implemented for postgress"
-  setIndexUse = error "Not Implemented for postgress"
+instance IsSql92AggregationIndexHintsSyntax PgAggregationSetQuantifierSyntax where
+  type Sql92AggregationIndexHintsSyntax PgAggregationSetQuantifierSyntax = PgExpressionSyntax
+
+  setIndexForce = const (PgAggregationSetQuantifierSyntax mempty)
+  setIndexUse = const (PgAggregationSetQuantifierSyntax mempty)
 
 instance IsCustomSqlSyntax PgExpressionSyntax where
   newtype CustomSqlSyntax PgExpressionSyntax =

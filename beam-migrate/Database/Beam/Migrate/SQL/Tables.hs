@@ -46,6 +46,7 @@ import Control.Applicative
 import Control.Monad.Identity
 import Control.Monad.Writer.Strict
 import Control.Monad.State
+import Control.Monad (forM_)
 
 import Data.Text (Text)
 import Data.Typeable

@@ -118,7 +118,6 @@ class ( IsSql92ExpressionSyntax (Sql92SelectTableExpressionSyntax select)
       , IsSql92FromSyntax (Sql92SelectTableFromSyntax select)
       , IsSql92GroupingSyntax (Sql92SelectTableGroupingSyntax select)
       , IsSql92AggregationSetQuantifierSyntax (Sql92SelectTableSetQuantifierSyntax select)
-      , IsSql92AggregationIndexHintsSyntax (Sql92SelectTableSetIndexHintsSyntax select)
 
       , Sql92GroupingExpressionSyntax (Sql92SelectTableGroupingSyntax select) ~ Sql92SelectTableExpressionSyntax select
       , Sql92FromExpressionSyntax (Sql92SelectTableFromSyntax select) ~ Sql92SelectTableExpressionSyntax select

@@ -9,6 +9,8 @@ import Database.Beam.Query.Internal
 import Database.Beam.Query.Types
 
 import Control.Monad.Free.Church
+import Control.Monad.Fix (MonadFix(..))
+
 import Control.Monad.Writer hiding ((<>))
 import Control.Monad.State.Strict
 

@@ -330,7 +330,7 @@ lookupUserInfo _ = do
   let fullName = username
 #else
   userId <- getEffectiveUserID
-  UserEntry { userName = username, userGecos = fullName } <- getUserEntryForID userId
+  UserEntry username _ _ _ fullName _ _ <- getUserEntryForID userId
 #endif
   hostname <- getHostName
 

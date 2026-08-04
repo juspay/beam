@@ -23,6 +23,7 @@ import           Database.Beam.Migrate.Serialization
 
 import           Data.Char (toLower, toUpper)
 import           Data.Hashable
+import           Data.Int (Int32)
 import           Data.List (find, nub)
 import qualified Data.Map as M
 import           Data.Maybe
@@ -667,8 +668,8 @@ instance IsSql92ExpressionSyntax HsExpr where
   lowerE = hsApp (hsVar "lowerE") . pure
   upperE = hsApp (hsVar "upperE") . pure
   trimE = hsApp (hsVar "trimE") . pure
-  jsonValidE = hsApp (hsVar "jsonValidE") . pure
-  jsonUnquoteE = hsApp (hsVar "jsonUnquoteE") . pure
+  -- jsonValidE = hsApp (hsVar "jsonValidE") . pure
+  -- jsonUnquoteE = hsApp (hsVar "jsonUnquoteE") . pure
 
   existsE = error "existsE"
   uniqueE = error "uniqueE"
@@ -679,7 +680,7 @@ instance IsSql92ExpressionSyntax HsExpr where
 
   castE = error "castE"
   extractE = error "extractE"
-  jsonExtractE = error "jsonExtractE"
+  -- jsonExtractE = error "jsonExtractE"
 
   isNullE = hsApp (hsVar "isNullE") . pure
   isNotNullE = hsApp (hsVar "isNotNullE") . pure
@@ -721,6 +722,9 @@ instance IsSql92ConstraintAttributesSyntax HsNone where
   deferrableAttributeSyntax = HsNone
 
 instance HasSqlValueSyntax HsExpr Int where
+  sqlValueSyntax = hsInt
+
+instance HasSqlValueSyntax HsExpr Int32 where
   sqlValueSyntax = hsInt
 
 instance HasSqlValueSyntax HsExpr T.Text where
