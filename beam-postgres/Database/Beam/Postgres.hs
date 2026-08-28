@@ -22,7 +22,7 @@ module Database.Beam.Postgres
     Postgres(..), Pg, liftIOWithHandle
 
     -- ** Postgres syntax
-  , PgCommandSyntax, PgSyntax
+  , PgCommandSyntax(..), PgSyntax
   , PgSelectSyntax, PgInsertSyntax
   , PgUpdateSyntax, PgDeleteSyntax
 
